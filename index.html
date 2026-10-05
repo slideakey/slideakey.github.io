@@ -176,6 +176,9 @@ select {
 
 .wheel { width: 262px; height: 262px; display: block; }
 .wheel-wrap { display: grid; justify-items: center; gap: 2px; }
+/* ring labels sit close to the wheel, without moving the wheel itself */
+.ring-top { margin: 0.9em 0 -0.9em; }
+.ring-bottom { margin: -0.9em 0 0.9em; }
 .hint { font-size: 15px; color: var(--red); display: inline-flex; align-items: center; gap: 6px; }
 .hint svg { width: 34px; height: 12px; }
 .slider-row:hover { filter: drop-shadow(0 3px 2px rgba(43,33,24,.28)); }
@@ -308,13 +311,14 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         </div>
       </div>
       <div class="wheel-wrap">
-      <svg class="wheel" viewBox="-131 -131 262 262" role="img" aria-label="Pocket Edition wheel turned to match the strips. Drag the inner wheel to turn it.">
+      <div class="strip-label ring-top">OUTER RING: the key you're in</div>
+      <svg class="wheel" viewBox="-131 -131 262 262" role="img" aria-label="Pocket Edition wheel turned to match the strips. Drag the inner ring to turn it.">
         <g id="spinArrow" aria-hidden="true"></g>
         <g id="outer"></g>
-        <g class="inner" id="inner"><title>Drag to turn the inner wheel</title></g>
+        <g class="inner" id="inner"><title>Drag to turn the inner ring</title></g>
         <g id="hub"></g>
       </svg>
-      <div class="hint"><span>Turn the inner wheel</span></div>
+      <div class="strip-label ring-bottom">INNER RING: the key you want &middot; <span class="hint">drag me</span></div>
       </div>
     </div>
   </section>
