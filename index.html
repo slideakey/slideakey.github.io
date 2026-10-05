@@ -176,6 +176,7 @@ select {
 
 .wheel { width: 262px; height: 262px; display: block; }
 .wheel-wrap { display: grid; justify-items: center; gap: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 /* ring labels sit close to the wheel, without moving the wheel itself */
 .ring-top { margin: 0.9em 0 -0.9em; }
 .ring-bottom { margin: -0.9em 0 0.9em; }
@@ -304,9 +305,10 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <div class="strip-label">FIXED STRIP: the key you're in</div>
 
         <div class="readout">
-          <!-- read aloud by screen readers whenever the key changes -->
-          <div class="big" id="moveText" aria-live="polite" aria-atomic="true"></div>
-          <div class="maps" id="maps" aria-live="polite" aria-atomic="true"></div>
+          <div class="big" id="moveText"></div>
+          <div class="maps" id="maps"></div>
+          <!-- hidden: one sentence read aloud by screen readers when the key settles -->
+          <div class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></div>
           <div class="chords" id="chords"></div>
           <div class="note" id="sharpNote"></div>
         </div>
@@ -525,7 +527,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
   const triad = (root) => [root, mod(root + 4), mod(root + 7)];
 
-  function render(animate) {
+  function render(animate, speak) {
     const to = mod(from + shift);
     fromSel.value = from;
     toSel.value = to;
@@ -560,12 +562,22 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const anySharp = chordSet.some(([iv]) => NOTES[mod(from + iv + shift)].includes("#")) || tones.some(t => NOTES[mod(t + shift)].includes("#"));
     $("sharpNote").textContent = anySharp ? "The strips use sharps only. A# is the same note as B♭, D# as E♭, and so on." : "";
     setTimeout(() => sliderRow.classList.remove("dragging"), 0);
+
+    // one combined sentence for screen readers, only when the visitor changes the key
+    if (speak) {
+      const said = (shift === 0 ? "From " + NOTES[from] + " to " + NOTES[to] + ": no change."
+        : "From " + NOTES[from] + " to " + NOTES[to] + ": up " + shift + (shift === 1 ? " box. " : " boxes. ")
+          + tones.map(t => NOTES[t] + " becomes " + NOTES[mod(t + shift)]).join(", ") + ".");
+      const live = $("announce");
+      live.textContent = "";
+      setTimeout(() => { live.textContent = said; }, 50);
+    }
   }
 
-  fromSel.addEventListener("change", () => { const to = mod(from + shift); from = +fromSel.value; shift = mod(to - from); render(true); });
-  toSel.addEventListener("change", () => { shift = mod(+toSel.value - from); render(true); });
-  $("up").addEventListener("click", () => { shift = mod(shift - 1); render(true); });
-  $("down").addEventListener("click", () => { shift = mod(shift + 1); render(true); });
+  fromSel.addEventListener("change", () => { const to = mod(from + shift); from = +fromSel.value; shift = mod(to - from); render(true, true); });
+  toSel.addEventListener("change", () => { shift = mod(+toSel.value - from); render(true, true); });
+  $("up").addEventListener("click", () => { shift = mod(shift - 1); render(true, true); });
+  $("down").addEventListener("click", () => { shift = mod(shift + 1); render(true, true); });
 
   // drag the slider: moving it left by one box shows the next note up
   let dragStartX = 0, dragStartOffset = 0, dragging = false;
@@ -590,7 +602,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const off = dragStartOffset + (e.clientX - dragStartX);
     shift = mod(Math.round(-off / w) - 12);
     sliderRow.classList.remove("dragging");
-    render(true);
+    render(true, true);
   }
   sliderRow.addEventListener("pointerup", endDrag);
   sliderRow.addEventListener("pointercancel", endDrag);
@@ -627,7 +639,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     shift = mod(Math.round(-spin.rot / 30));
     spin = null;
     wheel.classList.remove("spinning");
-    render(true);
+    render(true, true);
   }
   wheel.addEventListener("pointerup", endSpin);
   wheel.addEventListener("pointercancel", endSpin);
