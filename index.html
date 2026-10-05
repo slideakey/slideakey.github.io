@@ -166,7 +166,7 @@ select {
 .chords { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   border: 1.5px solid var(--ink);
-  background: var(--row);
+  background: #F5EEDC;   /* a shade lighter than --row, so the red letters pass the contrast check */
   padding: 2px 10px;
   font-family: var(--mono);
   font-size: 16px;
@@ -304,8 +304,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <div class="strip-label">FIXED STRIP: the key you're in</div>
 
         <div class="readout">
-          <div class="big" id="moveText"></div>
-          <div class="maps" id="maps"></div>
+          <!-- read aloud by screen readers whenever the key changes -->
+          <div class="big" id="moveText" aria-live="polite" aria-atomic="true"></div>
+          <div class="maps" id="maps" aria-live="polite" aria-atomic="true"></div>
           <div class="chords" id="chords"></div>
           <div class="note" id="sharpNote"></div>
         </div>
