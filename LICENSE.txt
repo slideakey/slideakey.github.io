@@ -1,0 +1,80 @@
+LICENCE
+=======
+
+Slide-a-Key Musical Transposer © 2026 Slide-a-Key
+
+This work is licensed under the Creative Commons Attribution-NonCommercial 4.0
+International licence (CC BY-NC 4.0).
+
+  * Summary: https://creativecommons.org/licenses/by-nc/4.0/
+  * Full legal text:
+    https://creativecommons.org/licenses/by-nc/4.0/legalcode.en
+
+What This Covers
+----------------
+
+The licence applies to all Slide-a-Key printables and accompanying text:
+
+  * Slide-a-Key Musical Transposer, Classic Edition (PDF and Markdown)
+  * Slide-a-Key Musical Transposer, Tent Edition (PDF)
+  * Slide-a-Key Musical Transposer, Pocket Edition (PDF)
+  * The README and teacher's guide (Markdown and PDF) and this licence file
+  * The slideakey.com website page (index.html) and its README
+
+The small build_pdf.py script, which turns the Markdown files into PDFs, is
+not covered by the Creative Commons licence. It's free to use, copy and change
+for any purpose, with no warranty.
+
+In Plain Terms
+--------------
+
+You are free to:
+
+  * Share: copy and redistribute the material in any medium or format.
+  * Adapt: remix, transform and build upon the material.
+
+Under these terms:
+
+  * Attribution: give appropriate credit, provide a link to the licence, and
+    indicate if changes were made.
+  * NonCommercial: you may not use the material for commercial purposes.
+  * No additional restrictions: you may not apply legal terms or
+    technological measures that restrict others from doing anything the
+    licence permits.
+
+So you can print Slide-a-Keys for yourself, your students, your band or your
+jam night, and pass them around freely. Please don't sell them.
+
+This summary is not the licence itself. If it differs from the full legal text
+linked above, the legal text applies.
+
+How to Credit Slide-a-Key
+-------------------------
+
+If you share or adapt Slide-a-Key, a credit like this is enough:
+
+    Slide-a-Key Musical Transposer, www.slideakey.com, licensed under CC
+    BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/)
+
+If you changed it, add a note such as "adapted from" and say briefly what you
+changed.
+
+Trademarks and Fonts
+--------------------
+
+The licence covers the printables' content and artwork. It does not grant any
+rights to the name "Slide-a-Key" as a brand.
+
+The fonts used are separately licensed by their creators and are not covered
+by this licence:
+
+  * Rye, Patrick Hand and Noto Music: SIL Open Font License
+  * Permanent Marker: Apache License 2.0
+  * DejaVu Sans and DejaVu Sans Mono: DejaVu Fonts License
+  * FreeSerif: GNU GPL with the font exception
+
+No Warranty
+-----------
+
+Slide-a-Key is provided as is, without warranty of any kind. Please
+double-check important transpositions before a gig.

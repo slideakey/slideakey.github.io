@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Slide-a-Key: a free, printable paper tool for moving notes, melodies and chord charts from one key to another. No batteries, no app, no subscription.">
+<title>Slide-a-Key</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rye&family=Patrick+Hand&family=Permanent+Marker&family=IBM+Plex+Mono:wght@600&family=Noto+Music&display=swap">
+<style>
+/* Layout: one paper sheet with a double border, like the printables; sections stack down the sheet, demo first. */
+:root {
+  --paper: #FBF6EA;
+  --sheet: #FFFDF6;
+  --ink: #2B2118;
+  --red: #C0392B;
+  --yellow: #FFD84D;
+  --gold: #D4A62A;
+  --gold-d: #8C6A12;
+  --shade: #E6DCC6;
+  --row: #F1E8D2;
+  --muted: #6E5E4A;
+  --display: "Rye", "Rockwell", Georgia, serif;
+  --body: "Patrick Hand", "Comic Neue", "Segoe Print", system-ui, sans-serif;
+  --marker: "Permanent Marker", "Patrick Hand", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+  --music: "Noto Music", "Segoe UI Symbol", "Apple Symbols", serif;
+  --box: 38px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 19px;
+  line-height: 1.45;
+  padding: 24px 16px 40px;
+}
+.sheet {
+  max-width: 1040px;
+  margin: 0 auto;
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: -8px;
+  padding: 44px clamp(20px, 5vw, 56px) 36px;
+}
+h1, h2, h3 { font-family: var(--display); font-weight: 400; text-wrap: balance; margin: 0; }
+h2 {
+  color: var(--red);
+  font-size: clamp(26px, 4.4vw, 34px);
+  line-height: 1.15;
+  display: inline-block;
+  border-bottom: 2px solid var(--red);
+  padding-bottom: 4px;
+}
+h3 { font-size: 21px; line-height: 1.2; }
+p { margin: 0; max-width: 62ch; }
+section { display: grid; gap: 16px; padding-block: 34px 6px; }
+.lede { color: var(--muted); font-size: 20px; }
+code, .mono { font-family: var(--mono); font-size: .78em; }
+a { color: var(--red); }
+a:focus-visible, button:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; gap: 6px; justify-items: center; text-align: center; }
+.hero h1 { font-size: clamp(46px, 11vw, 92px); line-height: 1; letter-spacing: .01em; }
+.hero .sub { font-family: var(--display); color: var(--red); font-size: clamp(20px, 4vw, 30px); }
+.hero .tag { color: var(--muted); font-size: 20px; }
+.burst-row { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 18px; flex-wrap: wrap; }
+.burst { width: min(600px, calc(100% - 124px)); min-width: 260px; height: auto; flex: 0 1 auto; }
+.burst text { font-family: var(--marker); }
+.coin { width: 84px; height: 84px; flex: none; }
+.burst-row > .coin { width: 120px; height: 120px; }
+@media (min-width: 761px) {
+  /* tuck the coin against the burst's lower-right points, like a seal, as on the printed sheets */
+  .burst-row > .coin { position: relative; margin-left: -22px; transform: translateY(72px); }
+}
+svg text.coin-glyph { font-family: var(--music); }
+.coin text { font-family: var(--music); }
+.cta-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 36px; }
+
+.btn {
+  font-family: var(--display);
+  font-size: 18px;
+  background: var(--red);
+  color: var(--sheet);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 10px 18px 8px;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+.btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+.btn.ghost { background: var(--sheet); color: var(--ink); }
+.btn small { font-family: var(--body); font-size: 14px; opacity: .85; }
+
+/* ---------- demo ---------- */
+.demo { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.controls label { display: flex; align-items: center; gap: 8px; }
+select {
+  font-family: var(--mono);
+  font-size: 17px;
+  background: var(--sheet);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  padding: 4px 8px;
+}
+.nudge { font-family: var(--mono); font-size: 18px; width: 40px; height: 36px; background: var(--sheet); color: var(--ink); border: 2px solid var(--ink); cursor: pointer; }
+.nudge:hover { background: var(--row); }
+
+.strips { display: grid; gap: 6px; min-width: 0; }
+.strip-label { font-size: 15px; color: var(--muted); }
+.window {
+  width: calc(var(--box) * 12 - 16.5px);
+  max-width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.row { display: flex; width: max-content; }
+.slider-row { cursor: grab; touch-action: pan-y; transition: transform .28s cubic-bezier(.3,.8,.3,1); }
+.slider-row.dragging { cursor: grabbing; transition: none; }
+.cell {
+  width: var(--box);
+  height: calc(var(--box) * 1.1);
+  border: 1.5px solid var(--ink);
+  margin-left: -1.5px;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: calc(var(--box) * .36);
+  background: #fff;
+  user-select: none;
+}
+.cell:first-child { margin-left: 0; }
+.cell.sharp { background: var(--shade); }
+.cell.hi { background: var(--yellow); }
+.cutline { border-top: 2px dashed var(--muted); position: relative; height: 0; margin: 2px 0; width: calc(var(--box) * 12 - 16.5px); max-width: 100%; }
+
+.readout { display: grid; gap: 10px; }
+.big { font-family: var(--display); font-size: 22px; }
+.maps { display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 17px; }
+.maps span b { color: var(--red); font-weight: 600; }
+.chords { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1.5px solid var(--ink);
+  background: var(--row);
+  padding: 2px 10px;
+  font-family: var(--mono);
+  font-size: 16px;
+}
+.chip b { color: var(--red); font-weight: 600; }
+.note { font-size: 16px; color: var(--muted); }
+
+.wheel { width: 262px; height: 262px; display: block; }
+.wheel-wrap { display: grid; justify-items: center; gap: 2px; }
+.hint { font-size: 15px; color: var(--red); display: inline-flex; align-items: center; gap: 6px; }
+.hint svg { width: 34px; height: 12px; }
+.slider-row:hover { filter: drop-shadow(0 3px 2px rgba(43,33,24,.28)); }
+.wheel:hover .inner { filter: drop-shadow(0 2px 2px rgba(43,33,24,.3)); }
+.wheel text { font-family: var(--mono); font-weight: 600; }
+.wheel .inner { transition: transform .45s cubic-bezier(.3,.8,.3,1); transform-origin: 0 0; }
+.wheel { touch-action: none; }
+.wheel .inner, .wheel #hub { cursor: grab; }
+.wheel.spinning .inner { transition: none; }
+.wheel.spinning, .wheel.spinning .inner, .wheel.spinning #hub { cursor: grabbing; }
+
+/* ---------- editions ---------- */
+.editions { display: grid; gap: 22px; }
+.ed {
+  border: 2px solid var(--ink);
+  background: var(--sheet);
+  padding: 16px 16px 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 8px 24px;
+  min-width: 0;
+}
+.ed svg { grid-row: 1 / -1; align-self: center; }
+.ed svg { width: 100%; height: auto; aspect-ratio: 3 / 2; display: block; background: var(--paper); border: 1.5px solid var(--shade); }
+.ed .name { font-family: var(--display); font-size: 22px; }
+.ed .tagline { color: var(--red); font-size: 17px; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; font-size: 16px; margin: 0; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+.ed .btn { justify-self: start; align-self: start; font-size: 16px; padding: 8px 14px 6px; }
+
+/* ---------- misc ---------- */
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.steps { margin: 0; padding-left: 24px; display: grid; gap: 6px; }
+.steps li::marker { font-family: var(--display); color: var(--red); }
+.callout {
+  border: 2px dashed var(--red);
+  padding: 12px 16px;
+  background: #FFF6E0;
+}
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.trio h3 { color: var(--red); }
+.trio p { font-size: 17px; }
+.tipjar { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.tipjar p { flex: 1 1 280px; }
+.status { min-height: 1.4em; font-size: 16px; color: var(--muted); }
+
+footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid var(--ink); display: grid; gap: 4px; justify-items: center; text-align: center; }
+footer .thanks { font-family: var(--display); color: var(--red); font-size: 22px; }
+footer .small { font-size: 16px; color: var(--muted); }
+footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+
+@media (max-width: 760px) {
+  :root { --box: clamp(22px, calc((100vw - 96px) / 12), 38px); }
+  .demo { grid-template-columns: 1fr; justify-items: center; }
+  .strips, .readout { justify-self: stretch; }
+  .trio, .two { grid-template-columns: 1fr; }
+  .ed { grid-template-columns: 1fr; }
+  .ed svg { grid-row: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slider-row, .wheel .inner, .btn { transition: none; }
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+
+  <header class="hero">
+    <h1>Slide-a-Key</h1>
+    <div class="sub">Musical Transposer</div>
+    <div class="tag">cut it, slide it, play it in any key</div>
+    <div class="burst-row">
+      <svg class="burst" viewBox="-274 -136 548 272" role="img" aria-label="No batteries! No app! No subscription! Works in all 12 keys! Scissors not included.">
+        <polygon id="burstShadow" fill="#2B2118" transform="translate(6,6)"></polygon>
+        <polygon id="burstFill" fill="#FFD84D" stroke="#C0392B" stroke-width="3" stroke-linejoin="round"></polygon>
+        <g transform="rotate(-3)">
+          <text x="0" y="-32" text-anchor="middle" font-size="19" fill="#C0392B">No batteries! No app!</text>
+          <text x="0" y="-9" text-anchor="middle" font-size="19" fill="#C0392B">No subscription!</text>
+          <text x="0" y="24" text-anchor="middle" font-size="28" fill="#2B2118">WORKS IN ALL 12 KEYS!</text>
+          <text x="0" y="48" text-anchor="middle" font-size="13" fill="#C0392B">(scissors not included)</text>
+        </g>
+      </svg>
+      <svg class="coin" viewBox="-48 -48 96 96" aria-hidden="true">
+        <polygon id="coinRim" fill="#8C6A12"></polygon>
+        <polygon id="coinFace" fill="#D4A62A" stroke="#8C6A12" stroke-width="1.5"></polygon>
+        <circle r="33.4" fill="none" stroke="#8C6A12" stroke-width="1.5"></circle>
+        <text class="coin-glyph" x="-7" y="15" text-anchor="middle" font-size="34" fill="#8C6A12">&#x1D11E;</text>
+        <text class="coin-glyph" x="7" y="-17" text-anchor="middle" font-size="18" fill="#8C6A12">&#x266F;</text>
+      </svg>
+    </div>
+    <div class="cta-row">
+      <a class="btn" href="#editions">Pick an edition</a>
+      <a class="btn ghost" href="#try">Try it first</a>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </header>
+
+  <section id="try" aria-labelledby="try-h">
+    <h2 id="try-h">Watch the notes line up</h2>
+    <p class="lede">Pick the key your song is in and the key you want. Or grab the top strip and slide it, or turn the wheel.</p>
+
+    <div class="controls">
+      <label for="fromKey">Song is in
+        <select id="fromKey"></select>
+      </label>
+      <label for="toKey">Move it to
+        <select id="toKey"></select>
+      </label>
+      <span>
+        <button class="nudge" id="down" type="button" aria-label="Slide one box left">&#x25C0;</button>
+        <button class="nudge" id="up" type="button" aria-label="Slide one box right">&#x25B6;</button>
+      </span>
+    </div>
+
+    <div class="demo">
+      <div class="strips">
+        <div class="strip-label">SLIDER: the key you want &middot; <span class="hint"><svg viewBox="0 0 34 12" aria-hidden="true"><path d="M7 6 H27" stroke="#C0392B" stroke-width="2"/><path d="M1 6 l7 -5 v10 z M33 6 l-7 -5 v10 z" fill="#C0392B"/></svg>drag me</span></div>
+        <div class="window"><div class="row slider-row" id="sliderRow" title="Drag left or right to change key"></div></div>
+        <div class="cutline" aria-hidden="true"></div>
+        <div class="window"><div class="row" id="baseRow"></div></div>
+        <div class="strip-label">FIXED STRIP: the key you're in</div>
+
+        <div class="readout">
+          <div class="big" id="moveText"></div>
+          <div class="maps" id="maps"></div>
+          <div class="chords" id="chords"></div>
+          <div class="note" id="sharpNote"></div>
+        </div>
+      </div>
+      <div class="wheel-wrap">
+      <svg class="wheel" viewBox="-131 -131 262 262" role="img" aria-label="Pocket Edition wheel turned to match the strips. Drag the inner wheel to turn it.">
+        <g id="spinArrow" aria-hidden="true"></g>
+        <g id="outer"></g>
+        <g class="inner" id="inner"><title>Drag to turn the inner wheel</title></g>
+        <g id="hub"></g>
+      </svg>
+      <div class="hint"><span>Turn the inner wheel</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="editions" aria-labelledby="ed-h">
+    <h2 id="ed-h">Pick your edition</h2>
+    <p>Three ways to build the same idea. Each is one printable page. They all teach the same thing, so pick by the time and materials you have.</p>
+    <div class="editions">
+      <article class="ed">
+        <svg viewBox="0 0 300 200" aria-hidden="true" id="art-classic"></svg>
+        <div class="name">Classic</div>
+        <div class="tagline">cut it, slide it, play it</div>
+        <dl class="facts">
+          <dt>How</dt><dd>Cut off the slider strip and slide it along the fixed strip.</dd>
+          <dt>Build</dt><dd>About 5 minutes</dd>
+          <dt>Best for</dt><dd>Quickest to make; no folding</dd>
+        </dl>
+        <a class="btn" href="slide-a-key_musical_transposer_classic_edition.pdf" data-file="slide-a-key_musical_transposer_classic_edition.pdf" download>Download PDF</a>
+      </article>
+      <article class="ed">
+        <svg viewBox="0 0 300 200" aria-hidden="true" id="art-tent"></svg>
+        <div class="name">Tent</div>
+        <div class="tagline">cut it, fold it, slide it</div>
+        <dl class="facts">
+          <dt>How</dt><dd>Fold the slider over the top edge of the page so it hooks on and runs along it.</dd>
+          <dt>Build</dt><dd>About 10 minutes</dd>
+          <dt>Best for</dt><dd>Staying lined up while you work</dd>
+        </dl>
+        <a class="btn" href="slide-a-key_musical_transposer_tent_edition.pdf" data-file="slide-a-key_musical_transposer_tent_edition.pdf" download>Download PDF</a>
+      </article>
+      <article class="ed">
+        <svg viewBox="0 0 300 200" aria-hidden="true" id="art-pocket"></svg>
+        <div class="name">Pocket</div>
+        <div class="tagline">cut it, spin it, play it</div>
+        <dl class="facts">
+          <dt>How</dt><dd>A spinning disk on a base card, joined at the centre with a brass paper fastener.</dd>
+          <dt>Build</dt><dd>About 15 minutes</dd>
+          <dt>Best for</dt><dd>Carrying in a guitar case</dd>
+        </dl>
+        <a class="btn" href="slide-a-key_musical_transposer_pocket_edition.pdf" data-file="slide-a-key_musical_transposer_pocket_edition.pdf" download>Download PDF</a>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="make-h">
+    <h2 id="make-h">Making one</h2>
+    <div class="two">
+      <div>
+        <h3>You'll need</h3>
+        <ul class="steps">
+          <li>A printer</li>
+          <li>Scissors, or a craft knife and ruler. A clean, straight cut matters most for the Tent Edition.</li>
+          <li>Pocket Edition only: a brass paper fastener (split pin)</li>
+          <li>Optional: cardstock, to make it sturdier</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <h3>Print at 100%</h3>
+        <p>Not "fit to page." The note boxes have to stay the same size so the strips and rings line up. On the Classic and Tent sheets, one full note strip measures exactly 7 inches.</p>
+      </div>
+    </div>
+    <p>The assembly steps are printed on each sheet. Once it's built, try C up to F: C becomes F, E becomes A, and G becomes C. It works for chords too: Am becomes Dm, and G7 becomes C7. Use it for a while and you may start to notice a pattern or two.</p>
+  </section>
+
+  <section id="teachers" aria-labelledby="teach-h">
+    <h2 id="teach-h">For teachers</h2>
+    <p>Slide-a-Key makes the structure of transposition visible. The strips show that transposing is a fixed distance; the wheel shows that the twelve notes form a loop. Students can find both patterns with their hands before anyone names them.</p>
+    <div class="trio">
+      <div><h3>They make it</h3><p>Cutting, folding and fastening turn a worksheet into an object. The first time the notes line up, it's their own tool that worked.</p></div>
+      <div><h3>They discover it</h3><p>Hold back the explanation. A student who notices every note moved five boxes has found the idea of an interval for themselves.</p></div>
+      <div><h3>They keep it</h3><p>Let students sign it, colour in the sharps and keep it in an instrument case. A tool they reach for next week keeps teaching.</p></div>
+    </div>
+    <p>The teacher's guide has a 45-minute lesson, six discovery questions with answers, and ideas for transposing instruments, capos and singing range.</p>
+    <div><a class="btn" href="TEACHERS_GUIDE.pdf" data-file="TEACHERS_GUIDE.pdf" download>Download the teacher's guide</a></div>
+  </section>
+
+  <section aria-labelledby="share-h">
+    <h2 id="share-h">Free to print and share</h2>
+    <p>Print it, photocopy it for your students or band, and pass it on. Please don't sell it. Slide-a-Key is licensed under Creative Commons <a href="https://creativecommons.org/licenses/by-nc/4.0/">BY-NC 4.0</a>.</p>
+    <div class="tipjar">
+      <svg class="coin" viewBox="-48 -48 96 96" aria-hidden="true" id="coin2"></svg>
+      <p><b style="color:var(--red);font-weight:400">The tip jar is opening soon.</b> If Slide-a-Key earns its keep, a loonie is plenty; a toonie is splendid.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="thanks">Thank you for choosing Slide-a-Key!</div>
+    <div class="small">Free to print and share. Please don't sell.</div>
+    <div class="mono">www.slideakey.com</div>
+    <div class="ver">v0.0 &middot; October 2026 &middot; pre-release for test printing</div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  const NOTES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const mod = (n) => ((n % 12) + 12) % 12;
+
+  /* ---------- decorations ---------- */
+  function starPoints(rx, ry, n, seed) {
+    let s = seed;
+    const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    const pts = [];
+    for (let i = 0; i < n * 2; i++) {
+      const a = Math.PI * i / n + (rnd() - .5) * .08;
+      const r = (i % 2 ? 0.8 : 1) * (0.95 + rnd() * 0.1);
+      pts.push((rx * r * Math.cos(a)).toFixed(1) + "," + (ry * r * Math.sin(a)).toFixed(1));
+    }
+    return pts.join(" ");
+  }
+  const burst = starPoints(262, 128, 24, 7);
+  $("burstShadow").setAttribute("points", burst);
+  $("burstFill").setAttribute("points", burst);
+
+  function polyPoints(r) {
+    const p = [];
+    for (let i = 0; i < 11; i++) {
+      const a = -Math.PI / 2 + 2 * Math.PI * i / 11;
+      p.push((r * Math.cos(a)).toFixed(2) + "," + (r * Math.sin(a)).toFixed(2));
+    }
+    return p.join(" ");
+  }
+  $("coinRim").setAttribute("points", polyPoints(46));
+  $("coinFace").setAttribute("points", polyPoints(43));
+  $("coin2").innerHTML = document.querySelector(".coin").innerHTML.replace(/ id="[^"]+"/g, "");
+  $("coin2").querySelectorAll("polygon")[0].setAttribute("points", polyPoints(46));
+  $("coin2").querySelectorAll("polygon")[1].setAttribute("points", polyPoints(43));
+
+  /* ---------- state ---------- */
+  let from = 0;      // C
+  let shift = 5;     // up 5 -> F
+  let innerRot = -shift * 30;   // the inner wheel's current angle, in degrees
+
+  /* ---------- strips ---------- */
+  const baseRow = $("baseRow"), sliderRow = $("sliderRow");
+  function cell(note) {
+    const d = document.createElement("div");
+    d.className = "cell" + (note.includes("#") ? " sharp" : "");
+    d.textContent = note;
+    return d;
+  }
+  for (let i = 0; i < 12; i++) baseRow.appendChild(cell(NOTES[i]));
+  for (let j = 0; j < 36; j++) sliderRow.appendChild(cell(NOTES[j % 12]));
+  const baseCells = [...baseRow.children], sliderCells = [...sliderRow.children];
+
+  function boxWidth() { return baseCells[0].getBoundingClientRect().width - 1.5; }
+  function placeSlider(offsetPx) {
+    sliderRow.style.transform = "translateX(" + offsetPx + "px)";
+  }
+  function snapOffset() { return -(shift + 12) * boxWidth(); }
+
+  /* ---------- wheel ---------- */
+  const outer = $("outer"), inner = $("inner"), hub = $("hub");
+  function sector(r0, r1, aMid) {
+    const h = Math.PI / 12, a0 = aMid - h, a1 = aMid + h;
+    const P = (r, a) => (r * Math.sin(a)).toFixed(2) + " " + (-r * Math.cos(a)).toFixed(2);
+    return "M" + P(r1, a0) + " A" + r1 + " " + r1 + " 0 0 1 " + P(r1, a1) +
+           " L" + P(r0, a1) + " A" + r0 + " " + r0 + " 0 0 0 " + P(r0, a0) + "Z";
+  }
+  function ringPart(group, r0, r1, upright, size) {
+    const els = [];
+    NOTES.forEach((n, i) => {
+      const a = i * Math.PI / 6;
+      const g = document.createElementNS(SVGNS, "g");
+      const path = document.createElementNS(SVGNS, "path");
+      path.setAttribute("d", sector(r0, r1, a));
+      path.setAttribute("stroke", "#2B2118");
+      path.setAttribute("stroke-width", "1.2");
+      const rm = (r0 + r1) / 2;
+      const t = document.createElementNS(SVGNS, "text");
+      const x = rm * Math.sin(a), y = -rm * Math.cos(a);
+      t.setAttribute("text-anchor", "middle");
+      t.setAttribute("dominant-baseline", "central");
+      t.setAttribute("font-size", size);
+      t.setAttribute("fill", "#2B2118");
+      t.setAttribute("transform", "translate(" + x.toFixed(2) + "," + y.toFixed(2) + ")" + (upright ? "" : " rotate(" + (i * 30) + ")"));
+      t.textContent = n;
+      g.append(path, t);
+      group.appendChild(g);
+      els.push(path);
+    });
+    return els;
+  }
+  const outerPaths = ringPart(outer, 84, 112, true, 12);
+  const innerPaths = ringPart(inner, 55, 81, false, 11);
+  hub.innerHTML = '<circle r="52" fill="#FFFDF6"/>';
+  const hubCoin = document.createElementNS(SVGNS, "g");
+  hubCoin.innerHTML = document.querySelector(".coin").innerHTML.replace(/ id="[^"]+"/g, "");
+  hubCoin.setAttribute("transform", "scale(1.03)");
+  hub.appendChild(hubCoin);
+  hubCoin.querySelectorAll("polygon")[0].setAttribute("points", polyPoints(46));
+  hubCoin.querySelectorAll("polygon")[1].setAttribute("points", polyPoints(43));
+
+  /* ---------- controls ---------- */
+  const fromSel = $("fromKey"), toSel = $("toKey");
+  NOTES.forEach((n, i) => {
+    fromSel.add(new Option(n, i));
+    toSel.add(new Option(n, i));
+  });
+
+  const triad = (root) => [root, mod(root + 4), mod(root + 7)];
+
+  function render(animate) {
+    const to = mod(from + shift);
+    fromSel.value = from;
+    toSel.value = to;
+
+    // strips
+    sliderRow.classList.toggle("dragging", !animate);
+    placeSlider(snapOffset());
+    const tones = triad(from);
+    baseCells.forEach((c, i) => c.classList.toggle("hi", tones.includes(i)));
+    sliderCells.forEach((c, j) => c.classList.toggle("hi", tones.map(t => mod(t + shift)).includes(j % 12)));
+
+    // wheel: outer note i sits at angle i*30; inner note j must sit next to outer note j-shift
+    // turn the short way round: pick the equivalent angle nearest the current one
+    let target = -shift * 30;
+    target += 360 * Math.round((innerRot - target) / 360);
+    innerRot = target;
+    inner.style.transform = "rotate(" + innerRot + "deg)";
+    outerPaths.forEach((p, i) => p.setAttribute("fill", tones.includes(i) ? "#FFD84D" : (NOTES[i].includes("#") ? "#E6DCC6" : "#FFFFFF")));
+    innerPaths.forEach((p, j) => p.setAttribute("fill", tones.map(t => mod(t + shift)).includes(j) ? "#FFD84D" : (NOTES[j].includes("#") ? "#E6DCC6" : "#FFFFFF")));
+
+    // readout
+    const down = shift === 0 ? 0 : 12 - shift;
+    $("moveText").textContent = shift === 0
+      ? "From " + NOTES[from] + " to " + NOTES[to] + ": no change. Slide it!"
+      : "From " + NOTES[from] + " to " + NOTES[to] + ": up " + shift + (shift === 1 ? " box" : " boxes") + " (or down " + down + ")";
+    $("maps").innerHTML = tones.map(t => "<span>" + NOTES[t] + " becomes <b>" + NOTES[mod(t + shift)] + "</b></span>").join("");
+    const chordSet = [[0, ""], [5, ""], [7, "7"], [9, "m"]];
+    $("chords").innerHTML = "<span class='note' style='align-self:center'>Chords:</span>" + chordSet.map(([iv, q]) => {
+      const a = NOTES[mod(from + iv)] + q, b = NOTES[mod(from + iv + shift)] + q;
+      return "<span class='chip'>" + a + " &rarr; <b>" + b + "</b></span>";
+    }).join("");
+    const anySharp = chordSet.some(([iv]) => NOTES[mod(from + iv + shift)].includes("#")) || tones.some(t => NOTES[mod(t + shift)].includes("#"));
+    $("sharpNote").textContent = anySharp ? "The strips use sharps only. A# is the same note as B♭, D# as E♭, and so on." : "";
+    setTimeout(() => sliderRow.classList.remove("dragging"), 0);
+  }
+
+  fromSel.addEventListener("change", () => { const to = mod(from + shift); from = +fromSel.value; shift = mod(to - from); render(true); });
+  toSel.addEventListener("change", () => { shift = mod(+toSel.value - from); render(true); });
+  $("up").addEventListener("click", () => { shift = mod(shift - 1); render(true); });
+  $("down").addEventListener("click", () => { shift = mod(shift + 1); render(true); });
+
+  // drag the slider: moving it left by one box shows the next note up
+  let dragStartX = 0, dragStartOffset = 0, dragging = false;
+  sliderRow.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    dragStartX = e.clientX;
+    dragStartOffset = snapOffset();
+    sliderRow.classList.add("dragging");
+    sliderRow.setPointerCapture(e.pointerId);
+  });
+  sliderRow.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const w = boxWidth();
+    let off = dragStartOffset + (e.clientX - dragStartX);
+    off = Math.max(-23 * w, Math.min(-1 * w, off));
+    placeSlider(off);
+  });
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    const w = boxWidth();
+    const off = dragStartOffset + (e.clientX - dragStartX);
+    shift = mod(Math.round(-off / w) - 12);
+    sliderRow.classList.remove("dragging");
+    render(true);
+  }
+  sliderRow.addEventListener("pointerup", endDrag);
+  sliderRow.addEventListener("pointercancel", endDrag);
+  window.addEventListener("resize", () => render(false));
+
+  // drag the inner wheel round: turning it clockwise moves it toward lower keys
+  const wheel = document.querySelector(".wheel");
+  let spin = null;
+  function pointerAngle(e) {
+    const r = wheel.getBoundingClientRect();
+    const x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
+    return { deg: Math.atan2(x, -y) * 180 / Math.PI, dist: Math.hypot(x, y) / (r.width / 262) };
+  }
+  wheel.addEventListener("pointerdown", (e) => {
+    const p = pointerAngle(e);
+    if (p.dist > 82) return;                 // the outer ring stays put
+    spin = { last: p.deg, rot: innerRot };
+    wheel.classList.add("spinning");
+    wheel.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  wheel.addEventListener("pointermove", (e) => {
+    if (!spin) return;
+    const deg = pointerAngle(e).deg;
+    let d = deg - spin.last;
+    if (d > 180) d -= 360; else if (d < -180) d += 360;
+    spin.last = deg;
+    spin.rot += d;
+    inner.style.transform = "rotate(" + spin.rot + "deg)";
+  });
+  function endSpin() {
+    if (!spin) return;
+    innerRot = spin.rot;
+    shift = mod(Math.round(-spin.rot / 30));
+    spin = null;
+    wheel.classList.remove("spinning");
+    render(true);
+  }
+  wheel.addEventListener("pointerup", endSpin);
+  wheel.addEventListener("pointercancel", endSpin);
+
+  // a curved two-way arrow beside the wheel, like the "spins" arrow on the Pocket picture
+  (function () {
+    const g = document.getElementById("spinArrow"), R = 121;
+    const P = (deg) => [R * Math.sin(deg * Math.PI / 180), -R * Math.cos(deg * Math.PI / 180)];
+    const [x0, y0] = P(28), [x1, y1] = P(72);
+    g.innerHTML = '<path d="M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + ' A' + R + ' ' + R + ' 0 0 1 ' + x1.toFixed(1) + ' ' + y1.toFixed(1) +
+      '" fill="none" stroke="#C0392B" stroke-width="2.5"/>' +
+      '<path d="M0 -6 L9 0 L0 6 Z" fill="#C0392B" transform="translate(' + x1.toFixed(1) + ',' + y1.toFixed(1) + ') rotate(72)"/>' +
+      '<path d="M0 -6 L9 0 L0 6 Z" fill="#C0392B" transform="translate(' + x0.toFixed(1) + ',' + y0.toFixed(1) + ') rotate(208)"/>';
+  })();
+
+  // a one-time nudge when the demo first comes into view, so people see the parts move
+  (function () {
+    let touched = false;
+    ["pointerdown", "keydown"].forEach(ev => document.getElementById("try").addEventListener(ev, () => { touched = true; }, { once: true }));
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some(e => e.isIntersecting)) return;
+      io.disconnect();
+      setTimeout(() => {
+        if (touched || spin || dragging) return;
+        const w = boxWidth();
+        placeSlider(snapOffset() - w);                                   // slide one box...
+        inner.style.transform = "rotate(" + (innerRot + 30) + "deg)";   // ...and turn one note
+        setTimeout(() => {
+          if (spin || dragging) return;
+          placeSlider(snapOffset());
+          inner.style.transform = "rotate(" + innerRot + "deg)";
+        }, 650);
+      }, 500);
+    }, { threshold: 0.6 });
+    io.observe(document.getElementById("try"));
+  })();
+
+  render(true);
+
+  /* ---------- edition art ---------- */
+  const C = { ink: "#2B2118", red: "#C0392B", yel: "#FFD84D", shade: "#E6DCC6", white: "#FFFFFF",
+              sheet: "#FFFDF6", paper: "#FBF6EA", muted: "#6E5E4A", gold: "#D4A62A", goldD: "#8C6A12" };
+  function el(parent, tag, attrs) {
+    const e = document.createElementNS(SVGNS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    parent.appendChild(e);
+    return e;
+  }
+  function label(parent, x, y, str, opts) {
+    const o = Object.assign({ size: 12, fill: C.muted, family: "Patrick Hand, sans-serif", anchor: "start" }, opts || {});
+    const t = el(parent, "text", { x, y, "font-size": o.size, fill: o.fill, "font-family": o.family, "text-anchor": o.anchor });
+    t.textContent = str;
+    return t;
+  }
+  function artStrip(parent, x, y, n, start, w, h, hi) {
+    for (let k = 0; k < n; k++) {
+      const ni = mod(start + k), note = NOTES[ni];
+      el(parent, "rect", { x: x + k * w, y, width: w, height: h, "stroke-width": 1.2, stroke: C.ink,
+        fill: hi.includes(ni) ? C.yel : (note.includes("#") ? C.shade : C.white) });
+      const t = el(parent, "text", { x: x + k * w + w / 2, y: y + h / 2 + 4, "text-anchor": "middle",
+        "font-family": "IBM Plex Mono, monospace", "font-weight": 600, "font-size": Math.round(w * .38), fill: C.ink });
+      t.textContent = note;
+    }
+  }
+  function arrowH(parent, x1, x2, y) {
+    el(parent, "line", { x1: x1 + 6, y1: y, x2: x2 - 6, y2: y, stroke: C.red, "stroke-width": 2 });
+    el(parent, "path", { d: `M${x1} ${y} l8 -5 v10 z M${x2} ${y} l-8 -5 v10 z`, fill: C.red });
+  }
+  function scissors(parent, x, y) {
+    const g = el(parent, "g", { transform: `translate(${x},${y})`, stroke: C.ink, "stroke-width": 1.6, fill: "none" });
+    el(g, "circle", { cx: 0, cy: -5, r: 3.5 }); el(g, "circle", { cx: 0, cy: 5, r: 3.5 });
+    el(g, "path", { d: "M3 -3 L16 4 M3 3 L16 -4" });
+  }
+  function textLines(parent, x, y, widths) {
+    widths.forEach((w, k) => el(parent, "rect", { x, y: y + k * 9, width: w, height: 3.5, rx: 1.5, fill: C.shade }));
+  }
+  function artRing(parent, cx, cy, r0, r1, upright, shiftBy, hi, size) {
+    const g = el(parent, "g", { transform: `translate(${cx},${cy}) rotate(${-shiftBy * 30})` });
+    NOTES.forEach((n, i) => {
+      const a = i * Math.PI / 6;
+      el(g, "path", { d: sector(r0, r1, a), stroke: C.ink, "stroke-width": 1,
+        fill: hi.includes(i) ? C.yel : (n.includes("#") ? C.shade : C.white) });
+      const rm = (r0 + r1) / 2, x = rm * Math.sin(a), y = -rm * Math.cos(a);
+      const keep = upright ? ` rotate(${shiftBy * 30 - 0})` : ` rotate(${i * 30})`;
+      const t = el(g, "text", { "text-anchor": "middle", "dominant-baseline": "central", "font-size": size,
+        "font-family": "IBM Plex Mono, monospace", "font-weight": 600, fill: C.ink,
+        transform: `translate(${x.toFixed(2)},${y.toFixed(2)})` + (upright ? "" : keep) });
+      t.textContent = n;
+    });
+    return g;
+  }
+  function artCoin(parent, cx, cy, scale) {
+    const g = el(parent, "g", { transform: `translate(${cx},${cy}) scale(${scale})` });
+    g.innerHTML = document.querySelector(".coin").innerHTML.replace(/ id="[^"]+"/g, "");
+    g.querySelectorAll("polygon")[0].setAttribute("points", polyPoints(46));
+    g.querySelectorAll("polygon")[1].setAttribute("points", polyPoints(43));
+  }
+
+  // Classic: a loose slider lifted just above the page, moved so F sits over C.
+  (function () {
+    const svg = $("art-classic");
+    el(svg, "rect", { x: 10, y: 84, width: 280, height: 112, fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
+    el(svg, "rect", { x: 14, y: 88, width: 272, height: 104, fill: "none", stroke: C.ink, "stroke-width": .6 });
+    el(svg, "line", { x1: 0, y1: 72, x2: 300, y2: 72, stroke: C.muted, "stroke-width": 1.4, "stroke-dasharray": "6 4" });
+    scissors(svg, 2, 72);
+    label(svg, 150, 18, "slider", { anchor: "middle" });
+    el(svg, "rect", { x: 19, y: 35, width: 270, height: 30, fill: C.ink, opacity: .18 });
+    artStrip(svg, 15, 31, 9, 5, 30, 30, [5, 9, 0]);
+    arrowH(svg, 92, 208, 24);
+    artStrip(svg, 15, 98, 9, 0, 30, 30, [0, 4, 7]);
+    label(svg, 15, 144, "fixed strip", {});
+    textLines(svg, 24, 156, [150, 210, 120, 180]);
+  })();
+
+  // Tent: the slider hooks over the page's top edge; a side view shows the fold.
+  (function () {
+    const svg = $("art-tent");
+    el(svg, "rect", { x: 10, y: 46, width: 206, height: 150, fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
+    el(svg, "path", { d: "M14 46 Q14 38 22 38 L208 38 Q214 38 214 46", fill: C.shade, stroke: C.ink, "stroke-width": 1.2 });
+    el(svg, "rect", { x: 18, y: 50, width: 192, height: 32, fill: C.ink, opacity: .15 });
+    artStrip(svg, 14, 46, 6, 5, 33, 32, [5, 9]);
+    artStrip(svg, 14, 88, 6, 0, 33, 32, [0, 4]);
+    arrowH(svg, 40, 190, 26);
+    label(svg, 115, 18, "slides along the top edge", { anchor: "middle" });
+    textLines(svg, 22, 134, [150, 180, 110, 160, 130]);
+    // side view
+    label(svg, 262, 46, "side view", { anchor: "middle" });
+    el(svg, "line", { x1: 262, y1: 70, x2: 262, y2: 190, stroke: C.ink, "stroke-width": 3 });
+    el(svg, "path", { d: "M254 128 L254 70 Q254 60 262 60 Q270 60 270 70 L270 94", fill: "none", stroke: C.red, "stroke-width": 3, "stroke-linecap": "round" });
+    label(svg, 248, 112, "front", { anchor: "end", size: 11 });
+    label(svg, 276, 90, "flap", { size: 11 });
+    label(svg, 268, 186, "page", { size: 11 });
+  })();
+
+  // Pocket: base card with the outer ring, top disk turned so F sits by C, coin over the fastener.
+  (function () {
+    const svg = $("art-pocket");
+    el(svg, "rect", { x: 56, y: 4, width: 188, height: 188, fill: C.sheet, stroke: C.muted, "stroke-width": 1.4, "stroke-dasharray": "6 4" });
+    artRing(svg, 150, 98, 70, 92, true, 0, [0, 4, 7], 11);
+    el(svg, "circle", { cx: 150, cy: 98, r: 68, fill: C.white, stroke: C.ink, "stroke-width": 1 });
+    artRing(svg, 150, 98, 45, 66, false, 5, [5, 9, 0], 10);
+    artCoin(svg, 150, 98, .89);
+    el(svg, "path", { d: "M236 36 A 112 112 0 0 1 262 98", fill: "none", stroke: C.red, "stroke-width": 2 });
+    el(svg, "path", { d: "M262 98 l-7 -8 l11 -1 z", fill: C.red, transform: "rotate(10 262 98)" });
+    label(svg, 268, 72, "spins", {});
+    label(svg, 4, 22, "base", { size: 11 }); label(svg, 4, 34, "card", { size: 11 });
+    label(svg, 4, 176, "top", { size: 11 }); label(svg, 4, 188, "disk", { size: 11 });
+    el(svg, "line", { x1: 28, y1: 178, x2: 104, y2: 146, stroke: C.muted, "stroke-width": 1 });
+  })();
+
+  /* ---------- downloads ---------- */
+  const status = $("status");
+  let dl = null;
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("downloads").then((ns) => { dl = ns; }).catch(() => {});
+  }
+  function say(msg) {
+    status.textContent = msg;
+    const near = document.activeElement && document.activeElement.closest("section, header");
+    if (near && !near.contains(status)) {
+      let s = near.querySelector(".status");
+      if (!s) { s = document.createElement("div"); s.className = "status"; s.setAttribute("role", "status"); near.appendChild(s); }
+      s.textContent = msg;
+    }
+  }
+  async function fetchBlob(name) {
+    const res = await fetch(name);
+    if (!res.ok) throw new Error("missing " + name);
+    return res.blob();
+  }
+  async function getFile(name) {
+    if (dl) {
+      try {
+        const blob = await fetchBlob(name);
+        await dl.save({ filename: name, data: blob });
+        say("Saved " + name + ".");
+      } catch (err) {
+        if (err && err.code === "declined") say("Download cancelled.");
+        else if (err && err.code === "rate_limited") say("One download at a time, please. Try again in a moment.");
+        else say("That download isn't available here. Try again from www.slideakey.com.");
+      }
+      return;
+    }
+    // Ordinary website: follow the file link.
+    const a = document.createElement("a");
+    a.href = name; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  document.querySelectorAll("[data-file]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      if (el.tagName === "A" && !dl) return;   // plain link works on a normal site
+      e.preventDefault();
+      getFile(el.dataset.file);
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
