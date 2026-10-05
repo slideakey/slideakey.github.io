@@ -733,7 +733,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     label(svg, 150, 18, "slider", { anchor: "middle" });
     el(svg, "rect", { x: 19, y: 35, width: 270, height: 30, fill: C.ink, opacity: .18 });
     artStrip(svg, 15, 31, 9, 5, 30, 30, [5, 9, 0]);
-    arrowH(svg, 92, 208, 24);
+    arrowH(svg, 92, 208, 23.5);
     artStrip(svg, 15, 98, 9, 0, 30, 30, [0, 4, 7]);
     label(svg, 15, 144, "fixed strip", {});
     textLines(svg, 24, 156, [150, 210, 120, 180]);
@@ -747,8 +747,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     el(svg, "rect", { x: 18, y: 50, width: 192, height: 32, fill: C.ink, opacity: .15 });
     artStrip(svg, 14, 46, 6, 5, 33, 32, [5, 9]);
     artStrip(svg, 14, 88, 6, 0, 33, 32, [0, 4]);
-    arrowH(svg, 40, 190, 26);
-    label(svg, 115, 18, "slides along the top edge", { anchor: "middle" });
+    arrowH(svg, 40, 190, 31);
+    label(svg, 115, 24, "slides along the top edge", { anchor: "middle" });
     textLines(svg, 22, 134, [150, 180, 110, 160, 130]);
     // side view
     label(svg, 262, 46, "side view", { anchor: "middle" });
@@ -767,9 +767,11 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     el(svg, "circle", { cx: 150, cy: 98, r: 68, fill: C.white, stroke: C.ink, "stroke-width": 1 });
     artRing(svg, 150, 98, 45, 66, false, 5, [5, 9, 0], 10);
     artCoin(svg, 150, 98, .89);
-    el(svg, "path", { d: "M236 36 A 112 112 0 0 1 262 98", fill: "none", stroke: C.red, "stroke-width": 2 });
-    el(svg, "path", { d: "M262 98 l-7 -8 l11 -1 z", fill: C.red, transform: "rotate(10 262 98)" });
-    label(svg, 268, 72, "spins", {});
+    el(svg, "path", { d: "M213.6 22.2 A 99 99 0 0 1 248.0 84.2", fill: "none", stroke: C.red, "stroke-width": 2 });
+    // two-way: the disk turns either way, so an arrowhead at each end (tips on the arc, pointing along it)
+    el(svg, "path", { d: "M-10 -5.5 L0 0 L-10 5.5 Z", fill: C.red, transform: "translate(248.0 84.2) rotate(82.0)" });
+    el(svg, "path", { d: "M-10 -5.5 L0 0 L-10 5.5 Z", fill: C.red, transform: "translate(213.6 22.2) rotate(-140.0)" });
+    label(svg, 255, 62, "spins", {});
     label(svg, 4, 22, "base", { size: 11 }); label(svg, 4, 34, "card", { size: 11 });
     label(svg, 4, 176, "top", { size: 11 }); label(svg, 4, 188, "disk", { size: 11 });
     el(svg, "line", { x1: 28, y1: 178, x2: 104, y2: 146, stroke: C.muted, "stroke-width": 1 });
