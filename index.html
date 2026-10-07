@@ -130,6 +130,11 @@ select {
 }
 .nudge { font-family: var(--mono); font-size: 18px; width: 40px; height: 36px; background: var(--sheet); color: var(--ink); border: 2px solid var(--ink); cursor: pointer; }
 .nudge:hover { background: var(--row); }
+.sound-toggle { font-family: var(--mono); font-size: 16px; height: 36px; padding: 0 12px; background: var(--sheet); color: var(--ink); border: 2px solid var(--ink); cursor: pointer; }
+.sound-toggle:hover { background: var(--row); }
+.sound-toggle .spk { width: 20px; height: 20px; vertical-align: -5px; margin-left: 0; }
+.sound-toggle .spk-x, .sound-toggle.muted .spk-waves { display: none; }
+.sound-toggle.muted .spk-x { display: inline; }
 
 .strips { display: grid; gap: 6px; min-width: 0; }
 .strip-label { font-size: 15px; color: var(--muted); }
@@ -294,6 +299,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <button class="nudge" id="down" type="button" aria-label="Slide one box left">&#x25C0;</button>
         <button class="nudge" id="up" type="button" aria-label="Slide one box right">&#x25B6;</button>
       </span>
+      <button class="sound-toggle" id="soundBtn" type="button" aria-pressed="true">Clicks:<svg class="spk" aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="16" height="16"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path class="spk-waves" d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path class="spk-x" d="M11 5.5l4 5M15 5.5l-4 5" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
     </div>
 
     <div class="demo">
@@ -580,11 +586,43 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   $("down").addEventListener("click", () => { shift = mod(shift + 1); render(true, true); });
 
   // drag the slider: moving it left by one box shows the next note up
-  let dragStartX = 0, dragStartOffset = 0, dragging = false;
+  // a soft wooden click each time the slider or ring passes a note (only while the visitor drags)
+  let actx = null, soundOn = true, lastClick = 0;
+  try { if (localStorage.getItem("sak-sound") === "off") soundOn = false; } catch (e) {}
+  const soundBtn = $("soundBtn");
+  function showSound() { soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false"); soundBtn.classList.toggle("muted", !soundOn); }
+  showSound();
+  function tick() {
+    if (!soundOn) return;
+    const now = performance.now();
+    if (now - lastClick < 25) return;            // no buzzing when dragged quickly
+    lastClick = now;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === "suspended") actx.resume();
+      const len = Math.floor(actx.sampleRate * 0.03);
+      const buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
+      const src = actx.createBufferSource(); src.buffer = buf;
+      const band = actx.createBiquadFilter(); band.type = "bandpass"; band.frequency.value = 2200; band.Q.value = 1.2;
+      const vol = actx.createGain(); vol.gain.value = 0.25;
+      src.connect(band); band.connect(vol); vol.connect(actx.destination);
+      src.start();
+    } catch (e) {}
+  }
+  soundBtn.addEventListener("click", () => {
+    soundOn = !soundOn;
+    try { localStorage.setItem("sak-sound", soundOn ? "on" : "off"); } catch (e) {}
+    showSound();
+    if (soundOn) tick();                         // a sample click when it's switched on
+  });
+
+  let dragStartX = 0, dragStartOffset = 0, dragging = false, dragBox = 0;
   sliderRow.addEventListener("pointerdown", (e) => {
     dragging = true;
     dragStartX = e.clientX;
     dragStartOffset = snapOffset();
+    dragBox = Math.round(dragStartOffset / boxWidth());
     sliderRow.classList.add("dragging");
     sliderRow.setPointerCapture(e.pointerId);
   });
@@ -594,6 +632,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     let off = dragStartOffset + (e.clientX - dragStartX);
     off = Math.max(-23 * w, Math.min(-1 * w, off));
     placeSlider(off);
+    const box = Math.round(off / w);
+    if (box !== dragBox) { dragBox = box; tick(); }
   });
   function endDrag(e) {
     if (!dragging) return;
@@ -619,7 +659,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   wheel.addEventListener("pointerdown", (e) => {
     const p = pointerAngle(e);
     if (p.dist > 82) return;                 // the outer ring stays put
-    spin = { last: p.deg, rot: innerRot };
+    spin = { last: p.deg, rot: innerRot, note: Math.round(innerRot / 30) };
     wheel.classList.add("spinning");
     wheel.setPointerCapture(e.pointerId);
     e.preventDefault();
@@ -632,6 +672,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     spin.last = deg;
     spin.rot += d;
     inner.style.transform = "rotate(" + spin.rot + "deg)";
+    const note = Math.round(spin.rot / 30);
+    if (note !== spin.note) { spin.note = note; tick(); }
   });
   function endSpin() {
     if (!spin) return;
