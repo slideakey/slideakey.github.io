@@ -299,7 +299,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <button class="nudge" id="down" type="button" aria-label="Slide one box left" title="Slide one box left">&#x25C0;</button>
         <button class="nudge" id="up" type="button" aria-label="Slide one box right" title="Slide one box right">&#x25B6;</button>
       </span>
-      <button class="sound-toggle" id="soundBtn" type="button" aria-pressed="true" title="Turn clicks on/off">Clicks:<svg class="spk" aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="16" height="16"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path class="spk-waves" d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path class="spk-x" d="M11 5.5l4 5M15 5.5l-4 5" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button class="sound-toggle" id="soundBtn" type="button" aria-pressed="true" title="Turn notes on/off">Notes:<svg class="spk" aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="16" height="16"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path class="spk-waves" d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path class="spk-x" d="M11 5.5l4 5M15 5.5l-4 5" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
     </div>
 
     <div class="demo">
@@ -586,35 +586,37 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   $("down").addEventListener("click", () => { shift = mod(shift + 1); render(true, true); });
 
   // drag the slider: moving it left by one box shows the next note up
-  // a soft wooden click each time the slider or ring passes a note (only while the visitor drags)
+  // a soft note each time the slider or ring moves a box: it plays the key you're moving to,
+  // pitched in the octave starting at middle C (only while the visitor drags)
   let actx = null, soundOn = true, lastClick = 0;
   try { if (localStorage.getItem("sak-sound") === "off") soundOn = false; } catch (e) {}
   const soundBtn = $("soundBtn");
   function showSound() { soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false"); soundBtn.classList.toggle("muted", !soundOn); }
   showSound();
-  function tick() {
+  function tick(s) {
     if (!soundOn) return;
     const now = performance.now();
-    if (now - lastClick < 25) return;            // no buzzing when dragged quickly
+    if (now - lastClick < 40) return;            // no jumble when dragged quickly
     lastClick = now;
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
       if (actx.state === "suspended") actx.resume();
-      const len = Math.floor(actx.sampleRate * 0.03);
-      const buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
-      const src = actx.createBufferSource(); src.buffer = buf;
-      const band = actx.createBiquadFilter(); band.type = "bandpass"; band.frequency.value = 2200; band.Q.value = 1.2;
-      const vol = actx.createGain(); vol.gain.value = 0.25;
-      src.connect(band); band.connect(vol); vol.connect(actx.destination);
-      src.start();
+      const t = actx.currentTime, n = mod(from + s);
+      const osc = actx.createOscillator(); osc.type = "triangle";
+      osc.frequency.value = 261.63 * Math.pow(2, n / 12);   // C = middle C
+      const vol = actx.createGain();
+      vol.gain.setValueAtTime(0.0001, t);
+      vol.gain.exponentialRampToValueAtTime(0.2, t + 0.008);
+      vol.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+      osc.connect(vol); vol.connect(actx.destination);
+      osc.start(t); osc.stop(t + 0.5);
     } catch (e) {}
   }
   soundBtn.addEventListener("click", () => {
     soundOn = !soundOn;
     try { localStorage.setItem("sak-sound", soundOn ? "on" : "off"); } catch (e) {}
     showSound();
-    if (soundOn) tick();                         // a sample click when it's switched on
+    if (soundOn) tick(shift);                    // a sample note when it's switched on
   });
 
   let dragStartX = 0, dragStartOffset = 0, dragging = false, dragBox = 0;
@@ -633,7 +635,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     off = Math.max(-23 * w, Math.min(-1 * w, off));
     placeSlider(off);
     const box = Math.round(off / w);
-    if (box !== dragBox) { dragBox = box; tick(); }
+    if (box !== dragBox) { dragBox = box; tick(mod(-box)); }
   });
   function endDrag(e) {
     if (!dragging) return;
@@ -673,7 +675,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     spin.rot += d;
     inner.style.transform = "rotate(" + spin.rot + "deg)";
     const note = Math.round(spin.rot / 30);
-    if (note !== spin.note) { spin.note = note; tick(); }
+    if (note !== spin.note) { spin.note = note; tick(mod(-note)); }
   });
   function endSpin() {
     if (!spin) return;
