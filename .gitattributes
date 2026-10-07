@@ -1,0 +1,6 @@
+# Keep line endings the same on every computer, so files only show as
+# changed on GitHub when their content has actually changed.
+* text=auto eol=lf
+*.pdf binary
+*.png binary
+*.ico binary
