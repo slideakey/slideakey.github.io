@@ -12,8 +12,8 @@
 <meta property="og:site_name" content="Slide-a-Key">
 <meta property="og:title" content="Slide-a-Key Musical Transposer">
 <meta property="og:description" content="A free, printable paper tool for moving notes, melodies and chord charts from one key to another. No batteries, no app, no subscription.">
-<meta property="og:url" content="https://slideakey.github.io/">
-<meta property="og:image" content="https://slideakey.github.io/og-image.png">
+<meta property="og:url" content="https://slideakey.com/">
+<meta property="og:image" content="https://slideakey.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Slide-a-Key Musical Transposer: a yellow cloudburst reading Works in all 12 keys, beside a gold coin with a treble clef.">
@@ -334,7 +334,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
   <section id="editions" aria-labelledby="ed-h">
     <h2 id="ed-h">Pick your edition</h2>
-    <p>Three ways to build the same idea. Each is one printable page, so pick by the time and materials you have.</p>
+    <p>Four ways to build the same idea. Each is one printable page, so pick by the time and materials you have.</p>
     <div class="editions">
       <article class="ed">
         <svg viewBox="0 0 300 200" aria-hidden="true" id="art-classic"></svg>
@@ -350,13 +350,24 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       <article class="ed">
         <svg viewBox="0 0 300 200" aria-hidden="true" id="art-tent"></svg>
         <div class="name">Tent</div>
-        <div class="tagline">cut it, fold it, slide it</div>
+        <div class="tagline">cut it, fold it, slide it, play it</div>
         <dl class="facts">
           <dt>How</dt><dd>Fold the slider over the top edge of the page so it hooks on and runs along it.</dd>
           <dt>Build</dt><dd>About 10 minutes</dd>
           <dt>Best for</dt><dd>Staying lined up while you work</dd>
         </dl>
         <a class="btn" href="slide-a-key_musical_transposer_tent_edition.pdf" data-file="slide-a-key_musical_transposer_tent_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Tent Edition (opens in a new tab)</span></a>
+      </article>
+      <article class="ed">
+        <svg viewBox="0 0 300 200" aria-hidden="true" id="art-sleeve"></svg>
+        <div class="name">Sleeve</div>
+        <div class="tagline">cut it, glue it, slide it, play it</div>
+        <dl class="facts">
+          <dt>How</dt><dd>The slider runs inside a folded paper sleeve, and the notes show through a window.</dd>
+          <dt>Build</dt><dd>About 20 minutes, plus time for the glue to dry</dd>
+          <dt>Best for</dt><dd>Keeping in a case or a book; the slider can't fall out</dd>
+        </dl>
+        <a class="btn" href="slide-a-key_musical_transposer_sleeve_edition.pdf" data-file="slide-a-key_musical_transposer_sleeve_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Sleeve Edition (opens in a new tab)</span></a>
       </article>
       <article class="ed">
         <svg viewBox="0 0 300 200" aria-hidden="true" id="art-pocket"></svg>
@@ -380,13 +391,14 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <ul class="steps">
           <li>A printer</li>
           <li>Scissors, or a craft knife and ruler. A clean, straight cut matters most for the Tent Edition.</li>
+          <li>Sleeve Edition only: a glue stick, and a craft knife for the window</li>
           <li>Pocket Edition only: a brass paper fastener (split pin)</li>
           <li>Optional: cardstock, to make it sturdier</li>
         </ul>
       </div>
       <div class="callout">
         <h3>Print at 100%</h3>
-        <p>Not "fit to page." The note boxes have to stay the same size so the strips and rings line up. On the Classic and Tent sheets, one full note strip measures exactly 7 inches.</p>
+        <p>Not "fit to page." The note boxes have to stay the same size so the strips and rings line up. On the Classic, Tent and Sleeve sheets, one full note strip measures exactly 7 inches.</p>
       </div>
     </div>
     <p>The assembly steps are printed on each sheet. Once it's built, try C up to F: C becomes F, E becomes A, and G becomes C. It works for chords too: Am becomes Dm, and G7 becomes C7. Use it for a while and you may start to notice a pattern or two.</p>
@@ -818,6 +830,21 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     label(svg, 248, 112, "front", { anchor: "end", size: 11 });
     label(svg, 276, 90, "flap", { size: 11 });
     label(svg, 268, 186, "page", { size: 11 });
+  })();
+
+  // Sleeve: the slider runs through a sleeve; the window shows it lined up so F sits over C.
+  (function () {
+    const svg = $("art-sleeve"), w = 32.67;
+    el(svg, "rect", { x: -4, y: 52, width: 308, height: 40, fill: C.sheet, stroke: C.ink, "stroke-width": 1.2 });
+    artStrip(svg, 52 - 2 * w, 56, 10, 3, w, 32, [5, 9, 0]);
+    el(svg, "path", { d: "M46 48 H266 V160 H46 Z M52 55 V95 H254 V55 Z", "fill-rule": "evenodd", fill: C.ink, opacity: .15 });
+    el(svg, "path", { d: "M40 42 H260 V154 H40 Z M52 55 V89 H248 V55 Z", "fill-rule": "evenodd", fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
+    el(svg, "rect", { x: 52, y: 55, width: 196, height: 34, fill: "none", stroke: C.ink, "stroke-width": 1.6 });
+    artStrip(svg, 52, 93, 6, 0, w, 30, [0, 4, 7]);
+    textLines(svg, 52, 132, [110, 80]);
+    arrowH(svg, 90, 210, 22);
+    label(svg, 150, 14, "slides through the sleeve", { anchor: "middle" });
+    label(svg, 150, 182, "window above, fixed strip below", { anchor: "middle", size: 11 });
   })();
 
   // Pocket: base card with the outer ring, top disk turned so F sits by C, coin over the fastener.
