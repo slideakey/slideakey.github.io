@@ -160,7 +160,10 @@ select {
   user-select: none;
 }
 .cell:first-child { margin-left: 0; }
-.cell.sharp { background: var(--shade); }
+.cell.sharp { background: var(--shade); place-items: unset; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; gap: 2px; }
+.cell small { font-size: .66em; }
+.flat { font-family: var(--music); font-size: 1.2em; font-weight: 400; -webkit-text-stroke: .3px currentColor; }
+svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is thin; a hairline outline matches the letters */
 .cell.hi { background: var(--yellow); }
 .cutline { border-top: 2px dashed var(--muted); position: relative; height: 0; margin: 2px 0; width: calc(var(--box) * 12 - 16.5px); max-width: 100%; }
 
@@ -352,10 +355,21 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <div class="tagline">cut it, fold it, slide it, play it</div>
         <dl class="facts">
           <dt>How</dt><dd>Fold the slider over the top edge of the page so it hooks on and runs along it.</dd>
-          <dt>Build</dt><dd>About 10 minutes</dd>
+          <dt>Build</dt><dd>About 5 minutes</dd>
           <dt>Best for</dt><dd>Staying lined up while you work</dd>
         </dl>
         <a class="btn" href="slide-a-key_musical_transposer_tent_edition.pdf" data-file="slide-a-key_musical_transposer_tent_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Tent Edition (opens in a new tab)</span></a>
+      </article>
+      <article class="ed">
+        <svg viewBox="0 0 300 200" aria-hidden="true" id="art-pocket"></svg>
+        <div class="name">Pocket</div>
+        <div class="tagline">cut it, spin it, play it</div>
+        <dl class="facts">
+          <dt>How</dt><dd>A spinning disk on a base card, joined at the centre with a brass paper fastener.</dd>
+          <dt>Build</dt><dd>About 10 minutes</dd>
+          <dt>Best for</dt><dd>Carrying in a guitar case</dd>
+        </dl>
+        <a class="btn" href="slide-a-key_musical_transposer_pocket_edition.pdf" data-file="slide-a-key_musical_transposer_pocket_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Pocket Edition (opens in a new tab)</span></a>
       </article>
       <article class="ed">
         <svg viewBox="0 0 300 200" aria-hidden="true" id="art-sleeve"></svg>
@@ -368,17 +382,6 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         </dl>
         <a class="btn" href="slide-a-key_musical_transposer_sleeve_edition.pdf" data-file="slide-a-key_musical_transposer_sleeve_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Sleeve Edition (opens in a new tab)</span></a>
       </article>
-      <article class="ed">
-        <svg viewBox="0 0 300 200" aria-hidden="true" id="art-pocket"></svg>
-        <div class="name">Pocket</div>
-        <div class="tagline">cut it, spin it, play it</div>
-        <dl class="facts">
-          <dt>How</dt><dd>A spinning disk on a base card, joined at the centre with a brass paper fastener.</dd>
-          <dt>Build</dt><dd>About 15 minutes</dd>
-          <dt>Best for</dt><dd>Carrying in a guitar case</dd>
-        </dl>
-        <a class="btn" href="slide-a-key_musical_transposer_pocket_edition.pdf" data-file="slide-a-key_musical_transposer_pocket_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Pocket Edition (opens in a new tab)</span></a>
-      </article>
     </div>
   </section>
 
@@ -390,8 +393,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <ul class="steps">
           <li>A printer</li>
           <li>Scissors, or a craft knife and ruler. A clean, straight cut matters most for the Tent Edition.</li>
-          <li>Sleeve Edition only: a glue stick, and a craft knife for the window</li>
           <li>Pocket Edition only: a brass paper fastener (split pin)</li>
+          <li>Sleeve Edition only: a glue stick, and a craft knife for the window</li>
           <li>Optional: cardstock, to make it sturdier</li>
         </ul>
       </div>
@@ -439,6 +442,14 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   const SVGNS = "http://www.w3.org/2000/svg";
   const $ = (id) => document.getElementById(id);
   const mod = (n) => ((n % 12) + 12) % 12;
+  // sharps also show their flat name, in small type beneath (C# over D♭)
+  const FLAT_OF = { "C#": "D", "D#": "E", "F#": "G", "G#": "A", "A#": "B" };
+  const flatName = (n) => FLAT_OF[n] + "\u266D";
+  function svgNote(t, n) {
+    if (!FLAT_OF[n]) { t.textContent = n; return; }
+    t.innerHTML = '<tspan x="0" dy="-0.32em">' + n + '</tspan><tspan x="0" dy="1.3em" font-size="0.66em">' + FLAT_OF[n] +
+      '<tspan class="flat">\u266D</tspan></tspan>';
+  }
 
   /* ---------- decorations ---------- */
   function starPoints(rx, ry, n, seed) {
@@ -480,7 +491,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   function cell(note) {
     const d = document.createElement("div");
     d.className = "cell" + (note.includes("#") ? " sharp" : "");
-    d.textContent = note;
+    if (FLAT_OF[note]) d.innerHTML = '<span>' + note + '</span><small>' + FLAT_OF[note] + '<span class="flat">\u266D</span></small>';
+    else d.textContent = note;
     return d;
   }
   for (let i = 0; i < 12; i++) baseRow.appendChild(cell(NOTES[i]));
@@ -518,14 +530,14 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       t.setAttribute("font-size", size);
       t.setAttribute("fill", "#2B2118");
       t.setAttribute("transform", "translate(" + x.toFixed(2) + "," + y.toFixed(2) + ")" + (upright ? "" : " rotate(" + (i * 30) + ")"));
-      t.textContent = n;
+      svgNote(t, n);
       g.append(path, t);
       group.appendChild(g);
       els.push(path);
     });
     return els;
   }
-  const outerPaths = ringPart(outer, 84, 112, true, 12);
+  const outerPaths = ringPart(outer, 84, 112, false, 12);
   const innerPaths = ringPart(inner, 55, 81, false, 11);
   hub.innerHTML = '<circle r="52" fill="#FFFDF6"/>';
   const hubCoin = document.createElementNS(SVGNS, "g");
@@ -538,8 +550,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   /* ---------- controls ---------- */
   const fromSel = $("fromKey"), toSel = $("toKey");
   NOTES.forEach((n, i) => {
-    fromSel.add(new Option(n, i));
-    toSel.add(new Option(n, i));
+    const label = FLAT_OF[n] ? n + " / " + flatName(n) : n;
+    fromSel.add(new Option(label, i));
+    toSel.add(new Option(label, i));
   });
 
   const triad = (root) => [root, mod(root + 4), mod(root + 7)];
@@ -577,7 +590,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       return "<span class='chip'>" + a + " &rarr; <b>" + b + "</b></span>";
     }).join("");
     const anySharp = chordSet.some(([iv]) => NOTES[mod(from + iv + shift)].includes("#")) || tones.some(t => NOTES[mod(t + shift)].includes("#"));
-    $("sharpNote").textContent = anySharp ? "The strips use sharps only. A# is the same note as B♭, D# as E♭, and so on." : "";
+    $("sharpNote").textContent = anySharp ? "A# is the same note as B♭, D# as E♭, and so on. The shaded boxes show both names." : "";
     setTimeout(() => sliderRow.classList.remove("dragging"), 0);
 
     // one combined sentence for screen readers, only when the visitor changes the key
@@ -756,9 +769,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       const ni = mod(start + k), note = NOTES[ni];
       el(parent, "rect", { x: x + k * w, y, width: w, height: h, "stroke-width": 1.2, stroke: C.ink,
         fill: hi.includes(ni) ? C.yel : (note.includes("#") ? C.shade : C.white) });
-      const t = el(parent, "text", { x: x + k * w + w / 2, y: y + h / 2 + 4, "text-anchor": "middle",
-        "font-family": "IBM Plex Mono, monospace", "font-weight": 600, "font-size": Math.round(w * .38), fill: C.ink });
-      t.textContent = note;
+      const t = el(parent, "text", { transform: `translate(${x + k * w + w / 2},${y + h / 2})`, "text-anchor": "middle",
+        "dominant-baseline": "central", "font-family": "IBM Plex Mono, monospace", "font-weight": 600, "font-size": Math.round(w * .38), fill: C.ink });
+      svgNote(t, note);
     }
   }
   function arrowH(parent, x1, x2, y) {
@@ -784,7 +797,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       const t = el(g, "text", { "text-anchor": "middle", "dominant-baseline": "central", "font-size": size,
         "font-family": "IBM Plex Mono, monospace", "font-weight": 600, fill: C.ink,
         transform: `translate(${x.toFixed(2)},${y.toFixed(2)})` + (upright ? "" : keep) });
-      t.textContent = n;
+      svgNote(t, n);
     });
     return g;
   }
@@ -850,7 +863,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   (function () {
     const svg = $("art-pocket");
     el(svg, "rect", { x: 56, y: 4, width: 188, height: 188, fill: C.sheet, stroke: C.muted, "stroke-width": 1.4, "stroke-dasharray": "6 4" });
-    artRing(svg, 150, 98, 70, 92, true, 0, [0, 4, 7], 11);
+    artRing(svg, 150, 98, 70, 92, false, 0, [0, 4, 7], 11);
     el(svg, "circle", { cx: 150, cy: 98, r: 68, fill: C.white, stroke: C.ink, "stroke-width": 1 });
     artRing(svg, 150, 98, 45, 66, false, 5, [5, 9, 0], 10);
     artCoin(svg, 150, 98, .89);
