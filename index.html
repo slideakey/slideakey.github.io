@@ -182,7 +182,7 @@ svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is
 .chip b { color: var(--red); font-weight: 600; }
 .note { font-size: 16px; color: var(--muted); }
 
-.wheel { width: 262px; height: 262px; display: block; }
+.wheel { width: min(301px, 100%); height: auto; aspect-ratio: 1; display: block; }   /* 15% larger than the 262-unit drawing; shrinks on narrow phones */
 .wheel-wrap { display: grid; justify-items: center; gap: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 /* ring labels sit close to the wheel, without moving the wheel itself */
