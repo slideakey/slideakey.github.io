@@ -810,7 +810,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     g.querySelectorAll("polygon")[1].setAttribute("points", polyPoints(43));
   }
 
-  // Classic: a loose slider lifted just above the page, moved so F sits over C.
+  // Classic: a loose slider lifted just above the page, moved so D sits over C.
   (function () {
     const svg = $("art-classic");
     el(svg, "rect", { x: 10, y: 84, width: 280, height: 112, fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
@@ -819,9 +819,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     scissors(svg, 2, 72);
     label(svg, 150, 18, "slider", { anchor: "middle" });
     el(svg, "rect", { x: 19, y: 35, width: 270, height: 30, fill: C.ink, opacity: .18 });
-    artStrip(svg, 15, 31, 9, 5, 30, 30, [5, 9, 0]);
+    artStrip(svg, 15, 31, 9, 2, 30, 30, [2, 7, 9]);
     arrowH(svg, 92, 208, 23.5);
-    artStrip(svg, 15, 98, 9, 0, 30, 30, [0, 4, 7]);
+    artStrip(svg, 15, 98, 9, 0, 30, 30, [0, 5, 7]);
     label(svg, 15, 144, "fixed strip", {});
     textLines(svg, 24, 156, [150, 210, 120, 180]);
   })();
@@ -832,8 +832,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     el(svg, "rect", { x: 10, y: 46, width: 206, height: 150, fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
     el(svg, "path", { d: "M14 46 Q14 38 22 38 L204 38 Q212 38 212 46", fill: C.shade, stroke: C.ink, "stroke-width": 1.2 });
     el(svg, "rect", { x: 18, y: 50, width: 192, height: 32, fill: C.ink, opacity: .15 });
-    artStrip(svg, 14, 46, 6, 5, 33, 32, [5, 9]);
-    artStrip(svg, 14, 88, 6, 0, 33, 32, [0, 4]);
+    artStrip(svg, 14, 46, 6, 2, 33, 32, [2, 7]);
+    artStrip(svg, 14, 88, 6, 0, 33, 32, [0, 5]);
     arrowH(svg, 40, 190, 31);
     label(svg, 115, 24, "slides along the top edge", { anchor: "middle" });
     textLines(svg, 22, 134, [150, 180, 110, 160, 130]);
@@ -846,28 +846,28 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     label(svg, 268, 186, "page", { size: 11 });
   })();
 
-  // Sleeve: the slider runs through a sleeve; the window shows it lined up so F sits over C.
+  // Sleeve: the slider runs through a sleeve; the window shows it lined up so D sits over C.
   (function () {
     const svg = $("art-sleeve"), w = 32.67;
     el(svg, "rect", { x: -4, y: 52, width: 308, height: 40, fill: C.sheet, stroke: C.ink, "stroke-width": 1.2 });
-    artStrip(svg, 52 - 2 * w, 56, 10, 3, w, 32, [5, 9, 0]);
+    artStrip(svg, 52 - 2 * w, 56, 10, 0, w, 32, [2, 7, 9]);
     el(svg, "path", { d: "M46 48 H266 V160 H46 Z M52 55 V95 H254 V55 Z", "fill-rule": "evenodd", fill: C.ink, opacity: .15 });
     el(svg, "path", { d: "M40 42 H260 V154 H40 Z M52 55 V89 H248 V55 Z", "fill-rule": "evenodd", fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
     el(svg, "rect", { x: 52, y: 55, width: 196, height: 34, fill: "none", stroke: C.ink, "stroke-width": 1.6 });
-    artStrip(svg, 52, 93, 6, 0, w, 30, [0, 4, 7]);
+    artStrip(svg, 52, 93, 6, 0, w, 30, [0, 5, 7]);
     textLines(svg, 52, 132, [110, 80]);
     arrowH(svg, 90, 210, 22);
     label(svg, 150, 14, "slides through the sleeve", { anchor: "middle" });
     label(svg, 150, 182, "window above, fixed strip below", { anchor: "middle", size: 11 });
   })();
 
-  // Pocket: base card with the outer ring, top disk turned so F sits by C, coin over the fastener.
+  // Pocket: base card with the outer ring, top disk turned so D sits by C, coin over the fastener.
   (function () {
     const svg = $("art-pocket");
     el(svg, "rect", { x: 56, y: 4, width: 188, height: 188, fill: C.sheet, stroke: C.muted, "stroke-width": 1.4, "stroke-dasharray": "6 4" });
-    artRing(svg, 150, 98, 70, 92, false, 0, [0, 4, 7], 11);
+    artRing(svg, 150, 98, 70, 92, false, 0, [0, 5, 7], 11);
     el(svg, "circle", { cx: 150, cy: 98, r: 68, fill: C.white, stroke: C.ink, "stroke-width": 1 });
-    artRing(svg, 150, 98, 45, 66, false, 5, [5, 9, 0], 10);
+    artRing(svg, 150, 98, 45, 66, false, 2, [2, 7, 9], 10);
     artCoin(svg, 150, 98, .89);
     el(svg, "path", { d: "M213.6 22.2 A 99 99 0 0 1 248.0 84.2", fill: "none", stroke: C.red, "stroke-width": 2 });
     // two-way: the disk turns either way, so an arrowhead at each end (tips on the arc, pointing along it)
