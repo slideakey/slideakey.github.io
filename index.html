@@ -172,6 +172,7 @@ svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is
 .big { font-family: var(--display); font-size: 22px; }
 .maps { display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 17px; }
 .maps span b { color: var(--red); font-weight: 600; }
+.maps .note { font-family: var(--body); }
 .chords { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   border: 1.5px solid var(--ink);
@@ -404,7 +405,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <p>Not "fit to page." The note boxes have to stay the same size so the strips and rings line up. On the Classic, Tent and Sleeve sheets, one full note strip measures exactly 7 inches.</p>
       </div>
     </div>
-    <p>The assembly steps are printed on each sheet. Once it's built, try C up to F: C becomes F, E becomes A, and G becomes C. It works for chords too: Am becomes Dm, and G7 becomes C7. Use it for a while and you may start to notice a pattern or two.</p>
+    <p>The assembly steps are printed on each sheet. Once it's built, try C up to D: the three main chords, C, F and G, become D, G and A. It works for other chords too: Am becomes Bm, and Em becomes F#m. Use it for a while and you may start to notice a pattern or two.</p>
   </section>
 
   <section id="teachers" aria-labelledby="teach-h">
@@ -412,7 +413,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     <p>Slide-a-Key makes the structure of transposition visible. The strips show that transposing is a fixed distance; the wheel shows that the twelve notes form a loop. Students can find both patterns with their hands before anyone names them.</p>
     <div class="trio">
       <div><h3>They make it</h3><p>Cutting, folding and fastening turn a worksheet into an object. The first time the notes line up, it's their own tool that worked.</p></div>
-      <div><h3>They discover it</h3><p>Hold back the explanation. A student who notices every note moved five boxes has found the idea of an interval for themselves.</p></div>
+      <div><h3>They discover it</h3><p>Hold back the explanation. A student who notices every note moved two boxes has found the idea of an interval for themselves.</p></div>
       <div><h3>They keep it</h3><p>Let students sign it, colour in the sharps and keep it in an instrument case. A tool they reach for next week keeps teaching.</p></div>
     </div>
     <p>The teacher's guide has a 45-minute lesson, six discovery questions with answers, and ideas for transposing instruments, capos and singing range.</p>
@@ -484,7 +485,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
   /* ---------- state ---------- */
   let from = 0;      // C
-  let shift = 5;     // up 5 -> F
+  let shift = 2;     // up 2 -> D
   let innerRot = -shift * 30;   // the inner wheel's current angle, in degrees
 
   /* ---------- strips ---------- */
@@ -556,7 +557,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     toSel.add(new Option(label, i));
   });
 
-  const triad = (root) => [root, mod(root + 4), mod(root + 7)];
+  const mainChords = (root) => [root, mod(root + 5), mod(root + 7)];   // roots of the I, IV and V chords
 
   function render(animate, speak) {
     const to = mod(from + shift);
@@ -566,7 +567,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     // strips
     sliderRow.classList.toggle("dragging", !animate);
     placeSlider(snapOffset());
-    const tones = triad(from);
+    const tones = mainChords(from);
     baseCells.forEach((c, i) => c.classList.toggle("hi", tones.includes(i)));
     sliderCells.forEach((c, j) => c.classList.toggle("hi", tones.map(t => mod(t + shift)).includes(j % 12)));
 
@@ -584,9 +585,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     $("moveText").textContent = shift === 0
       ? "From " + NOTES[from] + " to " + NOTES[to] + ": no change. Slide it!"
       : "From " + NOTES[from] + " to " + NOTES[to] + ": up " + shift + (shift === 1 ? " box" : " boxes") + " (or down " + down + ")";
-    $("maps").innerHTML = tones.map(t => "<span>" + NOTES[t] + " becomes <b>" + NOTES[mod(t + shift)] + "</b></span>").join("");
-    const chordSet = [[0, ""], [5, ""], [7, "7"], [9, "m"]];
-    $("chords").innerHTML = "<span class='note' style='align-self:center'>Chords:</span>" + chordSet.map(([iv, q]) => {
+    $("maps").innerHTML = "<span class='note' style='align-self:center'>Main chords:</span>" + tones.map(t => "<span>" + NOTES[t] + " becomes <b>" + NOTES[mod(t + shift)] + "</b></span>").join("");
+    const chordSet = [[9, "m"], [4, "m"], [2, "m"], [7, "7"]];   // vi, iii, ii and V7: the main chords are shown above
+    $("chords").innerHTML = "<span class='note' style='align-self:center'>Other chords:</span>" + chordSet.map(([iv, q]) => {
       const a = NOTES[mod(from + iv)] + q, b = NOTES[mod(from + iv + shift)] + q;
       return "<span class='chip'>" + a + " &rarr; <b>" + b + "</b></span>";
     }).join("");
