@@ -12,8 +12,7 @@ This repository holds the files for that website.
 
 | Edition | How it works |
 |---|---|
-| [Classic](slide-a-key_musical_transposer_classic_edition.pdf) | Cut off the slider strip and slide it along the fixed strip below. |
-| [Tent](slide-a-key_musical_transposer_tent_edition.pdf) | Fold the slider over the top edge of the page so it hooks on and slides along it. |
+| [Classic](slide-a-key_musical_transposer_classic_edition.pdf) | Fold the slider over the top edge of the page so it hooks on and slides along it. |
 | [Pocket](slide-a-key_musical_transposer_pocket_edition.pdf) | A spinning disk on a base card, joined with a brass paper fastener. |
 | [Sleeve](slide-a-key_musical_transposer_sleeve_edition.pdf) | The slider runs inside a folded paper sleeve, and the notes show through a window. |
 
