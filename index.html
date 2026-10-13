@@ -235,9 +235,10 @@ svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is
 .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .trio h3 { color: var(--red); }
 .trio p { font-size: 17px; }
-.tipjar { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.tipjar { display: flex; gap: 16px 24px; align-items: center; flex-wrap: wrap; }
+.tipjar .coin { order: 2; }   /* the coin sits to the right, so the button lines up with the others */
 .tipjar p { flex: 1 1 280px; }
-.tip-text { flex: 1 1 280px; }
+.tip-text { flex: 0 1 auto; }
 .tip-text p { margin: 0 0 12px; }
 .tip-text .tip-note { margin: 10px 0 0; font-size: 15px; color: var(--muted); }
 .status { min-height: 1.4em; font-size: 16px; color: var(--muted); }
@@ -433,7 +434,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     <div class="tipjar">
       <svg class="coin" viewBox="-48 -48 96 96" aria-hidden="true" id="coin2"></svg>
       <div class="tip-text">
-        <p>If Slide-a-Key earns its keep, a loonie is plenty; a toonie is splendid.</p>
+        <p>Slide-a-Key is free, and always will be, but if you'd like to help…</p>
         <a class="btn" href="https://ko-fi.com/Z3B328PCJK" target="_blank" rel="noopener">Support Slide-a-Key<span class="sr-only"> at Ko-fi (opens in a new tab)</span></a>
         <p class="tip-note">Your support goes to Happy Helpful Humans, the makers of Slide-a-Key.</p>
       </div>
