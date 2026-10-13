@@ -19,6 +19,8 @@ This repository holds the files for that website.
 
 Print at **100% scale**, not "fit to page", so the strips and rings line up. Assembly instructions are on each sheet.
 
+Have a Cricut? The [Cricut cut files](slide-a-key-cricut-kit.zip) let it cut out the Pocket and Sleeve Editions for you, using Print Then Cut.
+
 Teachers: the [Teacher's Guide](TEACHERS_GUIDE.pdf) has a ready-to-use lesson and classroom ideas.
 
 ## Free to Print and Share
