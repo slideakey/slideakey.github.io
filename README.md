@@ -18,7 +18,7 @@ This repository holds the files for that website.
 
 Optional for the Pocket Edition: the [chord arm](slide-a-key_musical_transposer_pocket_edition_chord_arm.pdf) turns on top of the wheel and marks the three main chords (I, IV and V) in any key.
 
-Print at **100% scale**, not "fit to page", so the strips and rings line up. Assembly instructions are on each sheet.
+Print at **100% scale**, not "fit to page", so everything comes out full size. The sheets are US Letter size but print fine on A4. Assembly instructions are on each sheet.
 
 Have a Cricut? The [Cricut cut files](slide-a-key-cricut-kit.zip) let it cut out the Pocket and Sleeve Editions, and the chord arm, for you, using Print Then Cut.
 

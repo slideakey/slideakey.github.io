@@ -404,7 +404,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       </div>
       <div class="callout">
         <h3>Print at 100%</h3>
-        <p>Not "fit to page." The note boxes have to stay the same size so the strips and rings line up. On the Classic and Sleeve sheets, one full note strip measures exactly 7 inches.</p>
+        <p>Not "fit to page," so everything comes out full size. On the Classic and Sleeve sheets, one full note strip measures exactly 178 mm (7 inches). The sheets are US Letter size but print fine on A4.</p>
       </div>
     </div>
     <p>The assembly steps are printed on each sheet. Once it's built, try C up to D: the three main chords, C, F and G, become D, G and A. It works for other chords too: Am becomes Bm, and Em becomes F#m. Use it for a while and you may start to notice a pattern or two.</p>
@@ -598,7 +598,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       return "<span class='chip'>" + a + " &rarr; <b>" + b + "</b></span>";
     }).join("");
     const anySharp = chordSet.some(([iv]) => NOTES[mod(from + iv + shift)].includes("#")) || tones.some(t => NOTES[mod(t + shift)].includes("#"));
-    $("sharpNote").textContent = anySharp ? "A# is the same note as B♭, D# as E♭, and so on. The shaded boxes show both names." : "";
+    $("sharpNote").textContent = anySharp ? "A# is the same note as B♭, D# as E♭, and so on. The shaded boxes show both names. Moving to F, B♭, E♭, A♭, D♭ or G♭? Read the flat names." : "";
     setTimeout(() => sliderRow.classList.remove("dragging"), 0);
 
     // one combined sentence for screen readers, only when the visitor changes the key
