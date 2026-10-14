@@ -16,9 +16,11 @@ This repository holds the files for that website.
 | [Pocket](slide-a-key_musical_transposer_pocket_edition.pdf) | A spinning disk on a base card, joined with a brass paper fastener. |
 | [Sleeve](slide-a-key_musical_transposer_sleeve_edition.pdf) | The slider runs inside a folded paper sleeve, and the notes show through a window. |
 
+Optional for the Pocket Edition: the [chord arm](slide-a-key_musical_transposer_pocket_edition_chord_arm.pdf) turns on top of the wheel and marks the three main chords (I, IV and V) in any key.
+
 Print at **100% scale**, not "fit to page", so the strips and rings line up. Assembly instructions are on each sheet.
 
-Have a Cricut? The [Cricut cut files](slide-a-key-cricut-kit.zip) let it cut out the Pocket and Sleeve Editions for you, using Print Then Cut.
+Have a Cricut? The [Cricut cut files](slide-a-key-cricut-kit.zip) let it cut out the Pocket and Sleeve Editions, and the chord arm, for you, using Print Then Cut.
 
 Teachers: the [Teacher's Guide](TEACHERS_GUIDE.pdf) has a ready-to-use lesson and classroom ideas.
 
