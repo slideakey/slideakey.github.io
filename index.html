@@ -210,7 +210,7 @@ svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is
   padding: 16px 16px 18px;
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-rows: auto auto auto auto 1fr;   /* spare height goes below the notes, not between the button and them */
   gap: 8px 24px;
   min-width: 0;
 }
@@ -223,6 +223,7 @@ svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is
 .facts dd { margin: 0; }
 .ed .btn { justify-self: start; align-self: start; font-size: 16px; padding: 8px 14px 6px; }
 .cut-note { margin: 0; font-size: 15px; color: var(--muted); }
+.ed > .cut-note, .cut-notes { align-self: start; }
 .cut-notes { display: grid; gap: 6px; }   /* keeps two notes in one grid cell, beside the picture */
 
 /* ---------- misc ---------- */
@@ -358,6 +359,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
           <dt>Best for</dt><dd>Staying lined up while you work</dd>
         </dl>
         <a class="btn" href="slide-a-key_musical_transposer_classic_edition.pdf" data-file="slide-a-key_musical_transposer_classic_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Classic Edition (opens in a new tab)</span></a>
+        <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf" data-file="slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf" target="_blank" rel="noopener">chord cursor<span class="sr-only"> for the Classic Edition (PDF, opens in a new tab)</span></a> hooks over the top edge and frames the three main chords (I, IV and V) in any key.</p>
       </article>
       <article class="ed">
         <svg viewBox="0 0 300 200" aria-hidden="true" id="art-pocket"></svg>
