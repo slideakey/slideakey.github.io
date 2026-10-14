@@ -173,6 +173,7 @@ svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is
 .maps { display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 17px; }
 .maps span b { color: var(--red); font-weight: 600; }
 .maps .note { font-family: var(--body); }
+.maps .deg { font-family: var(--display); font-style: normal; font-size: 15.5px; color: var(--muted); margin-right: 6px; }   /* I, IV, V: sized so its capitals match the chord letters */
 .chords { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   border: 1.5px solid var(--ink);
@@ -589,7 +590,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     $("moveText").textContent = shift === 0
       ? "From " + NOTES[from] + " to " + NOTES[to] + ": no change. Slide it!"
       : "From " + NOTES[from] + " to " + NOTES[to] + ": up " + shift + (shift === 1 ? " box" : " boxes") + " (or down " + down + ")";
-    $("maps").innerHTML = "<span class='note' style='align-self:center'>Main chords:</span>" + tones.map(t => "<span>" + NOTES[t] + " becomes <b>" + NOTES[mod(t + shift)] + "</b></span>").join("");
+    $("maps").innerHTML = "<span class='note' style='align-self:center'>Main chords:</span>" + tones.map((t, k) => "<span><i class='deg' aria-hidden='true'>" + ["I", "IV", "V"][k] + ".</i>" + NOTES[t] + " becomes <b>" + NOTES[mod(t + shift)] + "</b></span>").join("");
     const chordSet = [[9, "m"], [4, "m"], [2, "m"], [7, "7"]];   // vi, iii, ii and V7: the main chords are shown above
     $("chords").innerHTML = "<span class='note' style='align-self:center'>Other chords:</span>" + chordSet.map(([iv, q]) => {
       const a = NOTES[mod(from + iv)] + q, b = NOTES[mod(from + iv + shift)] + q;
