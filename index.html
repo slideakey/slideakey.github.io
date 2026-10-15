@@ -770,28 +770,31 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       '<path d="M0 -6 L9 0 L0 6 Z" fill="#C0392B" transform="translate(' + x0.toFixed(1) + ',' + y0.toFixed(1) + ') rotate(208)"/>';
   })();
 
-  // a one-time nudge when the demo first comes into view, so people see the parts move
+  // a one-time nudge, so people see the parts move: the strips and the wheel each play theirs the
+  // first time they're almost fully on screen (on a phone the wheel sits well below the strips).
+  // Once per page visit; never after the visitor has touched the demo; never with reduced motion.
   (function () {
     let touched = false;
     ["pointerdown", "keydown"].forEach(ev => document.getElementById("try").addEventListener(ev, () => { touched = true; }, { once: true }));
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce || !("IntersectionObserver" in window)) return;
-    const io = new IntersectionObserver((entries) => {
-      if (!entries.some(e => e.isIntersecting)) return;
-      io.disconnect();
-      setTimeout(() => {
-        if (touched || spin || dragging) return;
-        const w = boxWidth();
-        placeSlider(snapOffset() - w);                                   // slide one box...
-        inner.style.transform = "rotate(" + (innerRot + 30) + "deg)";   // ...and turn one note
+    function nudgeWhenSeen(el, go, back) {
+      const io = new IntersectionObserver((entries) => {
+        if (!entries.some(e => e.isIntersecting)) return;
+        io.disconnect();
         setTimeout(() => {
-          if (spin || dragging) return;
-          placeSlider(snapOffset());
-          inner.style.transform = "rotate(" + innerRot + "deg)";
-        }, 650);
-      }, 500);
-    }, { threshold: 0.6 });
-    io.observe(document.getElementById("try"));
+          if (touched || spin || dragging) return;
+          go();
+          setTimeout(() => { if (!spin && !dragging) back(); }, 650);
+        }, 500);
+      }, { threshold: 0.9 });
+      io.observe(el);
+    }
+    nudgeWhenSeen(sliderRow.parentNode,                                  // slide one box and back
+      () => placeSlider(snapOffset() - boxWidth()), () => placeSlider(snapOffset()));
+    nudgeWhenSeen(document.querySelector(".wheel"),                      // turn one note and back
+      () => { inner.style.transform = "rotate(" + (innerRot + 30) + "deg)"; },
+      () => { inner.style.transform = "rotate(" + innerRot + "deg)"; });
   })();
 
   render(true);
