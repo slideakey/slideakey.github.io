@@ -166,6 +166,8 @@ select {
 .flat { font-family: var(--music); font-size: 1.2em; font-weight: 400; -webkit-text-stroke: .3px currentColor; }
 svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is thin; a hairline outline matches the letters */
 .cell.hi { background: var(--yellow); }
+.cell.root { background: var(--red); color: #fff; }   /* I: red, IV and V yellow */
+svg text.onred .flat { stroke: #fff; }
 .cutline { border-top: 2px dashed var(--muted); position: relative; height: 0; margin: 2px 0; width: calc(var(--box) * 12 - 16.5px); max-width: 100%; }
 
 .readout { display: grid; gap: 10px; }
@@ -521,8 +523,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
   /* ---------- wheel ---------- */
   const outer = $("outer"), inner = $("inner"), hub = $("hub");
-  function sector(r0, r1, aMid) {
-    const h = Math.PI / 12, a0 = aMid - h, a1 = aMid + h;
+  function sector(r0, r1, aMid, h = Math.PI / 12) {
+    const a0 = aMid - h, a1 = aMid + h;
     const P = (r, a) => (r * Math.sin(a)).toFixed(2) + " " + (-r * Math.cos(a)).toFixed(2);
     return "M" + P(r1, a0) + " A" + r1 + " " + r1 + " 0 0 1 " + P(r1, a1) +
            " L" + P(r0, a1) + " A" + r0 + " " + r0 + " 0 0 0 " + P(r0, a0) + "Z";
@@ -582,6 +584,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const tones = mainChords(from);
     baseCells.forEach((c, i) => c.classList.toggle("hi", tones.includes(i)));
     sliderCells.forEach((c, j) => c.classList.toggle("hi", tones.map(t => mod(t + shift)).includes(j % 12)));
+    baseCells.forEach((c, i) => c.classList.toggle("root", i === from));          // I: red frame, as on the add-ons
+    sliderCells.forEach((c, j) => c.classList.toggle("root", j % 12 === to));
 
     // wheel: outer note i sits at angle i*30; inner note j must sit next to outer note j-shift
     // turn the short way round: pick the equivalent angle nearest the current one
@@ -591,6 +595,12 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     inner.style.transform = "rotate(" + innerRot + "deg)";
     outerPaths.forEach((p, i) => p.setAttribute("fill", tones.includes(i) ? "#FFD84D" : (NOTES[i].includes("#") ? "#E6DCC6" : "#FFFFFF")));
     innerPaths.forEach((p, j) => p.setAttribute("fill", tones.map(t => mod(t + shift)).includes(j) ? "#FFD84D" : (NOTES[j].includes("#") ? "#E6DCC6" : "#FFFFFF")));
+    [[outerPaths, from], [innerPaths, to]].forEach(([paths, root]) => paths.forEach((p, i) => {   // I: red, with white letters
+      if (i === root) p.setAttribute("fill", "#C0392B");
+      const tx = p.nextSibling;
+      tx.setAttribute("fill", i === root ? "#FFFFFF" : "#2B2118");
+      tx.classList.toggle("onred", i === root);
+    }));
 
     // readout
     const down = shift === 0 ? 0 : 12 - shift;
@@ -778,11 +788,15 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     t.textContent = str;
     return t;
   }
+  // hi lists the main chords, I first. The pictures show them as the add-ons do: a red frame
+  // for I and yellow frames for IV and V, on boxes left as printed.
   function artStrip(parent, x, y, n, start, w, h, hi) {
     for (let k = 0; k < n; k++) {
       const ni = mod(start + k), note = NOTES[ni];
       el(parent, "rect", { x: x + k * w, y, width: w, height: h, "stroke-width": 1.2, stroke: C.ink,
-        fill: hi.includes(ni) ? C.yel : (note.includes("#") ? C.shade : C.white) });
+        fill: note.includes("#") ? C.shade : C.white });
+      if (hi.includes(ni)) el(parent, "rect", { x: x + k * w + 2.6, y: y + 2.6, width: w - 5.2, height: h - 5.2,
+        fill: "none", stroke: ni === hi[0] ? C.red : C.yel, "stroke-width": 3 });
       const t = el(parent, "text", { transform: `translate(${x + k * w + w / 2},${y + h / 2})`, "text-anchor": "middle",
         "dominant-baseline": "central", "font-family": "IBM Plex Mono, monospace", "font-weight": 600, "font-size": Math.round(w * .38), fill: C.ink });
       svgNote(t, note);
@@ -805,7 +819,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     NOTES.forEach((n, i) => {
       const a = i * Math.PI / 6;
       el(g, "path", { d: sector(r0, r1, a), stroke: C.ink, "stroke-width": 1,
-        fill: hi.includes(i) ? C.yel : (n.includes("#") ? C.shade : C.white) });
+        fill: n.includes("#") ? C.shade : C.white });
+      if (hi.includes(i)) el(g, "path", { d: sector(r0 + 2.2, r1 - 2.2, a, Math.PI / 12 - 2.2 / ((r0 + r1) / 2)),
+        fill: "none", stroke: i === hi[0] ? C.red : C.yel, "stroke-width": 2.8, "stroke-linejoin": "round" });
       const rm = (r0 + r1) / 2, x = rm * Math.sin(a), y = -rm * Math.cos(a);
       const keep = upright ? ` rotate(${shiftBy * 30 - 0})` : ` rotate(${i * 30})`;
       const t = el(g, "text", { "text-anchor": "middle", "dominant-baseline": "central", "font-size": size,
@@ -846,7 +862,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   (function () {
     const svg = $("art-sleeve"), w = 32.67;
     el(svg, "rect", { x: -4, y: 46, width: 308, height: 104, fill: C.sheet, stroke: C.ink, "stroke-width": 1.2 });   // the slider: nearly as tall as the sleeve
-    artStrip(svg, 52 - 2 * w, 56, 10, 0, w, 32, [2, 7, 9]);
+    artStrip(svg, 52 - 2 * w, 56, 10, 0, w, 32, [2, 7]);   // frames only inside the window: the A past the sleeve isn't marked
     el(svg, "path", { d: "M46 48 H266 V160 H46 Z M52 55 V95 H254 V55 Z", "fill-rule": "evenodd", fill: C.ink, opacity: .15 });
     el(svg, "path", { d: "M40 42 H260 V154 H40 Z M52 55 V89 H248 V55 Z", "fill-rule": "evenodd", fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
     el(svg, "rect", { x: 52, y: 55, width: 196, height: 34, fill: "none", stroke: C.ink, "stroke-width": 1.6 });
