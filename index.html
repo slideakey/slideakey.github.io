@@ -228,7 +228,8 @@ svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is
 
 /* ---------- misc ---------- */
 .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
-.steps { margin: 0; padding-left: 24px; display: grid; gap: 6px; }
+.steps { margin: 0; padding-left: 24px; display: grid; gap: 3px; }
+h3 + .steps, .callout h3 + p { margin-top: 8px; }   /* breathing room under "You'll need" and "Print at 100%" */
 .steps li::marker { font-family: var(--display); color: var(--red); }
 .callout {
   border: 2px dashed var(--red);
