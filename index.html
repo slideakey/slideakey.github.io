@@ -201,6 +201,9 @@ svg text.onred .flat { stroke: #fff; }
 .wheel .inner { transition: transform .45s cubic-bezier(.3,.8,.3,1); transform-origin: 0 0; }
 .wheel { touch-action: none; }
 .wheel .inner, .wheel #hub { cursor: grab; }
+/* tap the fixed strip or the outer ring to pick the key you're in */
+#baseRow .cell, .wheel #outer { cursor: pointer; }
+#baseRow .cell:hover, .wheel #outer > g:hover { filter: brightness(.93); }
 .wheel.spinning .inner { transition: none; }
 .wheel.spinning, .wheel.spinning .inner, .wheel.spinning #hub { cursor: grabbing; }
 
@@ -323,8 +326,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <div class="strip-label">SLIDER: the key you want &middot; <span class="hint"><svg viewBox="0 0 34 12" aria-hidden="true"><path d="M7 6 H27" stroke="#C0392B" stroke-width="2"/><path d="M1 6 l7 -5 v10 z M33 6 l-7 -5 v10 z" fill="#C0392B"/></svg>drag me</span></div>
         <div class="window"><div class="row slider-row" id="sliderRow" title="Drag left or right to change key"></div></div>
         <div class="cutline" aria-hidden="true"></div>
-        <div class="window"><div class="row" id="baseRow"></div></div>
-        <div class="strip-label">FIXED STRIP: the key you're in</div>
+        <div class="window"><div class="row" id="baseRow" title="Click a note to pick the key your song is in"></div></div>
+        <div class="strip-label">FIXED STRIP: the key you're in &middot; <span class="hint">tap one</span></div>
 
         <div class="readout">
           <div class="big" id="moveText"></div>
@@ -337,10 +340,10 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         </div>
       </div>
       <div class="wheel-wrap">
-      <div class="strip-label ring-top">OUTER RING: the key you're in</div>
+      <div class="strip-label ring-top">OUTER RING: the key you're in &middot; <span class="hint">tap one</span></div>
       <svg class="wheel" viewBox="-131 -131 262 262" role="img" aria-label="Pocket Edition wheel turned to match the strips. Drag the inner ring clockwise or counterclockwise to change key.">
         <g id="spinArrow" aria-hidden="true"></g>
-        <g id="outer"></g>
+        <g id="outer"><title>Click a note to pick the key your song is in</title></g>
         <g class="inner" id="inner"><title>Drag clockwise or counterclockwise to change key</title><g id="hub"></g></g>
       </svg>
       <div class="strip-label ring-bottom">INNER RING: the key you want &middot; <span class="hint">drag me</span></div>
@@ -633,6 +636,18 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   $("up").addEventListener("click", () => { shift = mod(shift - 1); render(true, true); });
   $("down").addEventListener("click", () => { shift = mod(shift + 1); render(true, true); });
 
+  // tap a note on the fixed strip or the outer ring to make it the key you're in. It works like the
+  // "Song is in" menu (the key you want stays put and the slider glides to match), and the menus stay
+  // the keyboard route. One handler per strip, so screen readers don't hear "clickable" on every box.
+  function setFrom(i) {
+    if (i !== from) { const to = mod(from + shift); from = i; shift = mod(to - from); render(true, true); }
+    tick(0);
+  }
+  baseRow.addEventListener("click", (e) => {
+    const c = e.target.closest(".cell");
+    if (c) setFrom(baseCells.indexOf(c));
+  });
+
   // drag the slider: moving it left by one box shows the next note up
   // a soft note each time the slider or ring moves a box: it plays the key you're moving to,
   // pitched in the octave starting at middle C (only while the visitor drags)
@@ -734,6 +749,14 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     render(true, true);
   }
   wheel.addEventListener("pointerup", endSpin);
+  let ringDown = false;                      // a tap on the outer ring, not the end of a turn of the inner one
+  const onRing = (p) => p.dist >= 84 && p.dist <= 112;
+  wheel.addEventListener("pointerdown", (e) => { ringDown = onRing(pointerAngle(e)); });
+  wheel.addEventListener("click", (e) => {
+    const p = pointerAngle(e);
+    if (ringDown && onRing(p)) setFrom(mod(Math.round(p.deg / 30)));
+    ringDown = false;
+  });
   wheel.addEventListener("pointercancel", endSpin);
 
   // a curved two-way arrow beside the wheel, like the "spins" arrow on the Pocket picture
