@@ -20,7 +20,7 @@ Optional for the Classic Edition: the [chord cursor](slide-a-key_musical_transpo
 
 Optional for the Pocket Edition: the [chord arm](slide-a-key_musical_transposer_pocket_edition_chord_arm.pdf) turns on top of the wheel and marks the three main chords (I, IV and V) in any key.
 
-Optional for the Sleeve Edition: the [chord strip](slide-a-key_musical_transposer_sleeve_edition_chord_strip.pdf) slides in front of the slider and frames the three main chords (I, IV and V) in any key.
+Optional for the Sleeve Edition: the [chord sleeve](slide-a-key_musical_transposer_sleeve_edition_chord_sleeve.pdf) slips over the Sleeve and frames the three main chords (I, IV and V) in any key.
 
 Print at **100% scale**, not "fit to page", so everything comes out full size. The sheets are US Letter size but print fine on A4. Assembly instructions are on each sheet.
 
