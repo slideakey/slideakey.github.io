@@ -631,6 +631,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     }
   }
 
+  let touched = false;                       // set by real use of the demo (not by a finger scrolling past it)
+  ["change", "click", "keydown"].forEach(ev => $("try").addEventListener(ev, () => { touched = true; }));
   fromSel.addEventListener("change", () => { const to = mod(from + shift); from = +fromSel.value; shift = mod(to - from); render(true, true); });
   toSel.addEventListener("change", () => { shift = mod(+toSel.value - from); render(true, true); });
   $("up").addEventListener("click", () => { shift = mod(shift - 1); render(true, true); });
@@ -640,6 +642,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   // "Song is in" menu (the key you want stays put and the slider glides to match), and the menus stay
   // the keyboard route. One handler per strip, so screen readers don't hear "clickable" on every box.
   function setFrom(i) {
+    touched = true;
     if (i !== from) { const to = mod(from + shift); from = i; shift = mod(to - from); render(true, true); }
     tick(0);
   }
@@ -696,6 +699,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const w = boxWidth();
     let off = dragStartOffset + (e.clientX - dragStartX);
     off = Math.max(-23 * w, Math.min(-1 * w, off));
+    if (Math.abs(e.clientX - dragStartX) > 4) touched = true;
     placeSlider(off);
     const box = Math.round(off / w);
     if (box !== dragBox) { dragBox = box; tick(mod(-box)); }
@@ -707,11 +711,22 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const off = dragStartOffset + (e.clientX - dragStartX);
     shift = mod(Math.round(-off / w) - 12);
     sliderRow.classList.remove("dragging");
-    render(true, true);
+    render(true, Math.abs(e.clientX - dragStartX) > 4);   // a finger that only scrolled the page says nothing
   }
   sliderRow.addEventListener("pointerup", endDrag);
-  sliderRow.addEventListener("pointercancel", endDrag);
-  window.addEventListener("resize", () => render(false));
+  // a cancel (the phone taking the finger over to scroll the page) isn't a choice: put the slider back
+  sliderRow.addEventListener("pointercancel", () => {
+    if (!dragging) return;
+    dragging = false;
+    sliderRow.classList.remove("dragging");
+    placeSlider(snapOffset());
+  });
+  let lastWidth = window.innerWidth;           // phones fire "resize" as the address bar hides while scrolling:
+  window.addEventListener("resize", () => {    // only a change of width moves anything
+    if (window.innerWidth === lastWidth) return;
+    lastWidth = window.innerWidth;
+    render(false);
+  });
 
   // drag the inner wheel round: turning it clockwise moves it toward lower keys
   const wheel = document.querySelector(".wheel");
@@ -732,6 +747,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   wheel.addEventListener("pointermove", (e) => {
     if (!spin) return;
     const deg = pointerAngle(e).deg;
+    touched = true;
     let d = deg - spin.last;
     if (d > 180) d -= 360; else if (d < -180) d += 360;
     spin.last = deg;
@@ -757,7 +773,12 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     if (ringDown && onRing(p)) setFrom(mod(Math.round(p.deg / 30)));
     ringDown = false;
   });
-  wheel.addEventListener("pointercancel", endSpin);
+  wheel.addEventListener("pointercancel", () => {   // likewise for the wheel: back to where it was
+    if (!spin) return;
+    spin = null;
+    wheel.classList.remove("spinning");
+    inner.style.transform = "rotate(" + innerRot + "deg)";
+  });
 
   // a curved two-way arrow beside the wheel, like the "spins" arrow on the Pocket picture
   (function () {
@@ -774,8 +795,6 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   // first time they're almost fully on screen (on a phone the wheel sits well below the strips).
   // Once per page visit; never after the visitor has touched the demo; never with reduced motion.
   (function () {
-    let touched = false;
-    ["pointerdown", "keydown"].forEach(ev => document.getElementById("try").addEventListener(ev, () => { touched = true; }, { once: true }));
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce || !("IntersectionObserver" in window)) return;
     function nudgeWhenSeen(el, go, back) {
