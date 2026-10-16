@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Slide-a-Key: a free, printable paper tool for moving notes, melodies and chord charts from one key to another. No batteries, no app, no subscription.">
-<title>Slide-a-Key</title>
+<meta name="description" content="Slide-a-Key: a free, printable paper tool to transpose chords, notes and melodies to any key. Try it online first. No batteries, no app, no subscription.">
+<title>Slide-a-Key: Transpose Chords to Any Key, Free &amp; Printable</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Slide-a-Key">
 <meta property="og:title" content="Slide-a-Key Musical Transposer">
-<meta property="og:description" content="A free, printable paper tool for moving notes, melodies and chord charts from one key to another. No batteries, no app, no subscription.">
+<meta property="og:description" content="A free, printable paper tool to transpose chords, notes and melodies to any key. Try it online first. No batteries, no app, no subscription.">
 <link rel="canonical" href="https://slideakey.com/">
 <meta property="og:url" content="https://slideakey.com/">
 <meta property="og:image" content="https://slideakey.com/og-image.png">
@@ -84,6 +84,9 @@ a:focus-visible, button:focus-visible, select:focus-visible { outline: 3px solid
 .hero h1 { font-size: clamp(46px, 11vw, 92px); line-height: 1; letter-spacing: .01em; }
 .hero .sub { font-family: var(--display); color: var(--red); font-size: clamp(20px, 4vw, 30px); }
 .hero .tag { color: var(--muted); font-size: 20px; }
+.hero .who { color: var(--muted); font-size: 18px; max-width: 32em; margin: 34px 0 0; text-wrap: balance; }   /* who it's for, in one plain sentence */
+.hero .who + .cta-row { margin-top: 20px; }
+@media (max-width: 760px) { .hero .who { margin-top: 14px; } }   /* no coin hanging below the burst here */
 .burst-row { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 18px; flex-wrap: wrap; }
 .burst { width: min(600px, calc(100% - 124px)); min-width: 260px; height: auto; flex: 0 1 auto; }
 .burst text { font-family: var(--marker); }
@@ -288,7 +291,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       "name": "Slide-a-Key",
       "alternateName": "Slide-a-Key Musical Transposer",
       "inLanguage": "en",
-      "description": "A free, printable paper tool for moving notes, melodies and chord charts from one key to another. No batteries, no app, no subscription.",
+      "description": "Slide-a-Key: a free, printable paper tool to transpose chords, notes and melodies to any key. Try it online first. No batteries, no app, no subscription.",
       "publisher": {
         "@id": "https://slideakey.com/#organization"
       }
@@ -313,7 +316,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         "Transposing notes and chords to another key",
         "The I, IV and V chords in any key"
       ],
-      "keywords": "transpose, transposer, music transposer, chord transposer, transpose chords, change key, transposition chart, printable, capo, guitar",
+      "keywords": "transpose, transposer, music transposer, chord transposer, transpose chords, change key, transposition chart, printable, capo, guitar, ukulele, piano, singing, transposing instruments, saxophone, trumpet, clarinet",
       "audience": [
         {
           "@type": "EducationalAudience",
@@ -436,6 +439,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <text class="coin-glyph" x="7" y="-17" text-anchor="middle" font-size="18" fill="#8C6A12">&#x266F;</text>
       </svg>
     </div>
+    <p class="who">Works with chord charts and melodies for any instrument or voice, including guitar, ukulele, piano, and transposing instruments like sax, trumpet and clarinet.</p>
     <div class="cta-row">
       <a class="btn" href="#editions">Pick an edition</a>
       <a class="btn ghost" href="#try">Try it first</a>
