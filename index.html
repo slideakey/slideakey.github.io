@@ -269,6 +269,146 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   .slider-row, .wheel .inner, .btn { transition: none; }
 }
 </style>
+<!-- structured data for search engines: what Slide-a-Key is, and its printable parts -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://slideakey.com/#organization",
+      "name": "Slide-a-Key",
+      "url": "https://slideakey.com/",
+      "logo": "https://slideakey.com/apple-touch-icon.png"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://slideakey.com/#website",
+      "url": "https://slideakey.com/",
+      "name": "Slide-a-Key",
+      "alternateName": "Slide-a-Key Musical Transposer",
+      "inLanguage": "en",
+      "description": "A free, printable paper tool for moving notes, melodies and chord charts from one key to another. No batteries, no app, no subscription.",
+      "publisher": {
+        "@id": "https://slideakey.com/#organization"
+      }
+    },
+    {
+      "@type": "LearningResource",
+      "@id": "https://slideakey.com/#transposer",
+      "name": "Slide-a-Key Musical Transposer",
+      "url": "https://slideakey.com/",
+      "description": "A free printable music transposer: transpose chords, notes and melodies from one key to another. Line up the key you're in with the key you want, then read off the new notes. Works in all 12 keys, with no batteries, app or subscription.",
+      "image": "https://slideakey.com/og-image.png",
+      "inLanguage": "en",
+      "learningResourceType": [
+        "Printable",
+        "Hands-on activity"
+      ],
+      "educationalUse": [
+        "Transposing music",
+        "Learning keys and chords"
+      ],
+      "teaches": [
+        "Transposing notes and chords to another key",
+        "The I, IV and V chords in any key"
+      ],
+      "keywords": "transpose, transposer, music transposer, chord transposer, transpose chords, change key, transposition chart, printable, capo, guitar",
+      "audience": [
+        {
+          "@type": "EducationalAudience",
+          "educationalRole": "student"
+        },
+        {
+          "@type": "EducationalAudience",
+          "educationalRole": "teacher"
+        },
+        {
+          "@type": "Audience",
+          "audienceType": "Musicians"
+        }
+      ],
+      "isAccessibleForFree": true,
+      "license": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@id": "https://slideakey.com/#organization"
+      },
+      "publisher": {
+        "@id": "https://slideakey.com/#organization"
+      },
+      "isPartOf": {
+        "@id": "https://slideakey.com/#website"
+      },
+      "hasPart": [
+        {
+          "@type": "DigitalDocument",
+          "name": "Slide-a-Key Classic Edition",
+          "description": "Fold the slider over the top edge of the page so it hooks on and runs along it.",
+          "url": "https://slideakey.com/slide-a-key_musical_transposer_classic_edition.pdf",
+          "encodingFormat": "application/pdf",
+          "timeRequired": "PT5M"
+        },
+        {
+          "@type": "DigitalDocument",
+          "name": "Slide-a-Key Pocket Edition",
+          "description": "A spinning disk on a base card, joined at the centre with a brass paper fastener.",
+          "url": "https://slideakey.com/slide-a-key_musical_transposer_pocket_edition.pdf",
+          "encodingFormat": "application/pdf",
+          "timeRequired": "PT10M"
+        },
+        {
+          "@type": "DigitalDocument",
+          "name": "Slide-a-Key Sleeve Edition",
+          "description": "The slider runs inside a folded paper sleeve, and the notes show through a window.",
+          "url": "https://slideakey.com/slide-a-key_musical_transposer_sleeve_edition.pdf",
+          "encodingFormat": "application/pdf",
+          "timeRequired": "PT20M"
+        },
+        {
+          "@type": "DigitalDocument",
+          "name": "Slide-a-Key Classic Edition chord cursor (optional add-on)",
+          "description": "Hooks over the top edge and frames the three main chords (I, IV and V) in any key.",
+          "url": "https://slideakey.com/slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf",
+          "encodingFormat": "application/pdf"
+        },
+        {
+          "@type": "DigitalDocument",
+          "name": "Slide-a-Key Pocket Edition chord arm (optional add-on)",
+          "description": "Turns on top of the wheel and marks the three main chords (I, IV and V) in any key.",
+          "url": "https://slideakey.com/slide-a-key_musical_transposer_pocket_edition_chord_arm.pdf",
+          "encodingFormat": "application/pdf"
+        },
+        {
+          "@type": "DigitalDocument",
+          "name": "Slide-a-Key Sleeve Edition chord sleeve (optional add-on)",
+          "description": "Slips over the Sleeve and frames the three main chords (I, IV and V) in any key.",
+          "url": "https://slideakey.com/slide-a-key_musical_transposer_sleeve_edition_chord_sleeve.pdf",
+          "encodingFormat": "application/pdf"
+        },
+        {
+          "@type": "DigitalDocument",
+          "name": "Slide-a-Key Teacher's Guide",
+          "description": "A ready-made lesson, discovery questions with answers, and ideas for transposing instruments, capos and singing range.",
+          "url": "https://slideakey.com/TEACHERS_GUIDE.pdf",
+          "encodingFormat": "application/pdf"
+        },
+        {
+          "@type": "DigitalDocument",
+          "name": "Slide-a-Key Cricut cut files",
+          "description": "Print Then Cut files for the Pocket and Sleeve Editions and the add-ons.",
+          "url": "https://slideakey.com/slide-a-key-cricut-kit.zip",
+          "encodingFormat": "application/zip"
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <main class="sheet">
