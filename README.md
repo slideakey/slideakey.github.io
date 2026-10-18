@@ -16,7 +16,7 @@ This repository holds the files for that website.
 | [Pocket](slide-a-key_musical_transposer_pocket_edition.pdf) | A spinning disk on a base card, joined with a brass paper fastener. |
 | [Sleeve](slide-a-key_musical_transposer_sleeve_edition.pdf) | The slider runs inside a folded paper sleeve, and the notes show through a window. |
 
-Optional for the Classic Edition: the [chord cursor](slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf) hooks over the top edge and frames the three main chords (I, IV and V) in any key.
+Optional for the Classic Edition: the [chord cursor](slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf) hooks over the top edge and marks the three main chords (I, IV and V) in any key.
 
 Optional for the Pocket Edition: the [chord arm](slide-a-key_musical_transposer_pocket_edition_chord_arm.pdf) turns on top of the wheel and marks the three main chords (I, IV and V) in any key.
 

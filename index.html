@@ -376,7 +376,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         {
           "@type": "DigitalDocument",
           "name": "Slide-a-Key Classic Edition chord cursor (optional add-on)",
-          "description": "Hooks over the top edge and frames the three main chords (I, IV and V) in any key.",
+          "description": "Hooks over the top edge and marks the three main chords (I, IV and V) in any key.",
           "url": "https://slideakey.com/slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf",
           "encodingFormat": "application/pdf"
         },
@@ -472,7 +472,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <div class="window"><div class="row slider-row" id="sliderRow" title="Drag left or right to change key"></div></div>
         <div class="cutline" aria-hidden="true"></div>
         <div class="window"><div class="row" id="baseRow" title="Click a note to pick the key your song is in"></div></div>
-        <div class="strip-label">FIXED STRIP: the key you're in &middot; <span class="hint">tap one</span></div>
+        <div class="strip-label">FIXED STRIP: the key you're in &middot; <span class="hint">tap a note</span></div>
 
         <div class="readout">
           <div class="big" id="moveText"></div>
@@ -485,7 +485,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         </div>
       </div>
       <div class="wheel-wrap">
-      <div class="strip-label ring-top">OUTER RING: the key you're in &middot; <span class="hint">tap one</span></div>
+      <div class="strip-label ring-top">OUTER RING: the key you're in &middot; <span class="hint">tap a note</span></div>
       <svg class="wheel" viewBox="-131 -131 262 262" role="img" aria-label="Pocket Edition wheel turned to match the strips. Drag the inner ring clockwise or counterclockwise to change key.">
         <g id="spinArrow" aria-hidden="true"></g>
         <g id="outer"><title>Click a note to pick the key your song is in</title></g>
@@ -510,7 +510,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
           <dt>Best for</dt><dd>Staying lined up while you work</dd>
         </dl>
         <a class="btn" href="slide-a-key_musical_transposer_classic_edition.pdf" data-file="slide-a-key_musical_transposer_classic_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Classic Edition (opens in a new tab)</span></a>
-        <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf" data-file="slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf" target="_blank" rel="noopener">chord cursor<span class="sr-only"> for the Classic Edition (PDF, opens in a new tab)</span></a> hooks over the top edge and frames the three main chords (I, IV and V) in any key. It's in the <a href="slide-a-key-cricut-kit.zip" data-file="slide-a-key-cricut-kit.zip">Cricut&nbsp;cut&nbsp;files<span class="sr-only"> (zip, for Print Then Cut)</span></a> too.</p>
+        <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf" data-file="slide-a-key_musical_transposer_classic_edition_chord_cursor.pdf" target="_blank" rel="noopener">chord cursor<span class="sr-only"> for the Classic Edition (PDF, opens in a new tab)</span></a> hooks over the top edge and marks the three main chords (I, IV and V) in any key. It's in the <a href="slide-a-key-cricut-kit.zip" data-file="slide-a-key-cricut-kit.zip">Cricut&nbsp;cut&nbsp;files<span class="sr-only"> (zip, for Print Then Cut)</span></a> too.</p>
       </article>
       <article class="ed">
         <svg viewBox="0 0 300 200" aria-hidden="true" id="art-pocket"></svg>
@@ -979,7 +979,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     return t;
   }
   // hi lists the main chords, I first. The pictures show them as the add-ons do: a red frame
-  // for I and yellow frames for IV and V, on boxes left as printed.
+  // for I and yellow frames for IV and V, on boxes left as printed. The Classic's chord cursor
+  // marks them with bands under the bottom strip instead (artBands).
   function artStrip(parent, x, y, n, start, w, h, hi) {
     for (let k = 0; k < n; k++) {
       const ni = mod(start + k), note = NOTES[ni];
@@ -991,6 +992,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         "dominant-baseline": "central", "font-family": "IBM Plex Mono, monospace", "font-weight": 600, "font-size": Math.round(w * .38), fill: C.ink });
       svgNote(t, note);
     }
+  }
+  function artBands(parent, x, y, w, marks) {
+    marks.forEach(([k, col]) => el(parent, "rect", { x: x + k * w, y, width: w, height: 6, fill: col, stroke: C.ink, "stroke-width": 1 }));
   }
   function arrowH(parent, x1, x2, y) {
     el(parent, "line", { x1: x1 + 6, y1: y, x2: x2 - 6, y2: y, stroke: C.red, "stroke-width": 2 });
@@ -1034,8 +1038,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     el(svg, "rect", { x: 10, y: 46, width: 206, height: 150, fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
     el(svg, "path", { d: "M14 46 Q14 38 22 38 L204 38 Q212 38 212 46", fill: C.shade, stroke: C.ink, "stroke-width": 1.2 });
     el(svg, "rect", { x: 18, y: 50, width: 192, height: 32, fill: C.ink, opacity: .15 });
-    artStrip(svg, 14, 46, 6, 2, 33, 32, [2, 7]);
-    artStrip(svg, 14, 88, 6, 0, 33, 32, [0, 5]);
+    artStrip(svg, 14, 46, 6, 2, 33, 32, []);
+    artStrip(svg, 14, 88, 6, 0, 33, 32, []);
+    artBands(svg, 14, 122, 33, [[0, C.red], [5, C.yel]]);   // the chord cursor's bands: C and F (G is past the edge)
     arrowH(svg, 40, 190, 31);
     label(svg, 115, 24, "slides along the top edge", { anchor: "middle" });
     textLines(svg, 22, 134, [150, 180, 110, 160, 130]);
