@@ -390,7 +390,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         {
           "@type": "DigitalDocument",
           "name": "Slide-a-Key Sleeve Edition chord sleeve (optional add-on)",
-          "description": "Slips over the Sleeve and frames the three main chords (I, IV and V) in any key.",
+          "description": "Slips over the Sleeve and marks the three main chords (I, IV and V) in any key.",
           "url": "https://slideakey.com/slide-a-key_musical_transposer_sleeve_edition_chord_sleeve.pdf",
           "encodingFormat": "application/pdf"
         },
@@ -538,7 +538,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         </dl>
         <a class="btn" href="slide-a-key_musical_transposer_sleeve_edition.pdf" data-file="slide-a-key_musical_transposer_sleeve_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Sleeve Edition (opens in a new tab)</span></a>
         <div class="cut-notes">
-          <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_sleeve_edition_chord_sleeve.pdf" data-file="slide-a-key_musical_transposer_sleeve_edition_chord_sleeve.pdf" target="_blank" rel="noopener">chord sleeve<span class="sr-only"> for the Sleeve Edition (PDF, opens in a new tab)</span></a> slips over the Sleeve and frames the three main chords (I, IV and V) in any key.</p>
+          <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_sleeve_edition_chord_sleeve.pdf" data-file="slide-a-key_musical_transposer_sleeve_edition_chord_sleeve.pdf" target="_blank" rel="noopener">chord sleeve<span class="sr-only"> for the Sleeve Edition (PDF, opens in a new tab)</span></a> slips over the Sleeve and marks the three main chords (I, IV and V) in any key.</p>
           <p class="cut-note">Have a Cricut? Let it do the cutting with the <a href="slide-a-key-cricut-kit.zip" data-file="slide-a-key-cricut-kit.zip">Cricut cut files<span class="sr-only"> for the Pocket and Sleeve Editions</span></a> (zip, for Print Then Cut).</p>
         </div>
       </article>
@@ -732,7 +732,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const tones = mainChords(from);
     baseCells.forEach((c, i) => c.classList.toggle("hi", tones.includes(i)));
     sliderCells.forEach((c, j) => c.classList.toggle("hi", tones.map(t => mod(t + shift)).includes(j % 12)));
-    baseCells.forEach((c, i) => c.classList.toggle("root", i === from));          // I: red frame, as on the add-ons
+    baseCells.forEach((c, i) => c.classList.toggle("root", i === from));          // I: red, as on the add-ons
     sliderCells.forEach((c, j) => c.classList.toggle("root", j % 12 === to));
 
     // wheel: outer note i sits at angle i*30; inner note j must sit next to outer note j-shift
@@ -978,9 +978,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     t.textContent = str;
     return t;
   }
-  // hi lists the main chords, I first. The pictures show them as the add-ons do: a red frame
-  // for I and yellow frames for IV and V, on boxes left as printed. The Classic's chord cursor
-  // marks them with bands under the bottom strip instead (artBands).
+  // hi lists the main chords, I first. The pictures show them as the add-ons do, on boxes left as
+  // printed: the Pocket's chord arm with a red frame for I and yellow frames for IV and V, and the
+  // Classic's chord cursor and the Sleeve's chord sleeve with coloured bands and caps (artBands).
   function artStrip(parent, x, y, n, start, w, h, hi) {
     for (let k = 0; k < n; k++) {
       const ni = mod(start + k), note = NOTES[ni];
@@ -992,6 +992,23 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         "dominant-baseline": "central", "font-family": "IBM Plex Mono, monospace", "font-weight": 600, "font-size": Math.round(w * .38), fill: C.ink });
       svgNote(t, note);
     }
+  }
+  // A piece of paper from x0 to x1 and y0 to y1 with both ends torn off: the picture is a close-up of
+  // something longer. dx, dy shift it, for a shadow.
+  function torn(x0, x1, y0, y1, dx = 0, dy = 0, tornLeft = true, step = 7) {
+    const edge = (x, flip) => {
+      const pts = [];
+      if (flip === 1 && !tornLeft) return [[x, y0], [x, y1]];   // a real, straight end
+      for (let y = y0, k = 0; y <= y1 + 0.01; y += step, k++) pts.push([x + (k % 2 ? 4 : -2) * flip, Math.min(y, y1)]);
+      if (pts[pts.length - 1][1] < y1) pts.push([x, y1]);
+      return pts;
+    };
+    return "M" + edge(x0, 1).concat(edge(x1, -1).reverse()).map(([x, y]) => (x + dx) + " " + (y + dy)).join(" L") + " Z";
+  }
+  // Unlabelled boxes for notes cut by a torn edge, so no half letters show: n boxes from x, notes from start
+  function blankCells(parent, x, y, n, start, w, h) {
+    for (let k = 0; k < n; k++) el(parent, "rect", { x: x + k * w, y, width: w, height: h, "stroke-width": 1.2, stroke: C.ink,
+      fill: NOTES[mod(start + k)].includes("#") ? C.shade : C.white });
   }
   function artBands(parent, x, y, w, marks) {
     marks.forEach(([k, col]) => el(parent, "rect", { x: x + k * w, y, width: w, height: 6, fill: col, stroke: C.ink, "stroke-width": 1 }));
@@ -1032,37 +1049,72 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     g.querySelectorAll("polygon")[1].setAttribute("points", polyPoints(43));
   }
 
-  // Classic: the slider hooks over the page's top edge; a side view shows the fold.
+  // Classic: the slider hooks over the page's top edge; a side view shows the fold. The strips start
+  // at C at the page's left end, a real edge, drawn in front from the flap to the bottom; they run on
+  // for two octaves, so the right side is torn off. The slider, moved 2 boxes left so its D sits over
+  // C, pokes out past the left end, torn off there too.
   (function () {
-    const svg = $("art-classic");
-    el(svg, "rect", { x: 10, y: 46, width: 206, height: 150, fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
-    el(svg, "path", { d: "M14 46 Q14 38 22 38 L204 38 Q212 38 212 46", fill: C.shade, stroke: C.ink, "stroke-width": 1.2 });
-    el(svg, "rect", { x: 18, y: 50, width: 192, height: 32, fill: C.ink, opacity: .15 });
-    artStrip(svg, 14, 46, 6, 2, 33, 32, []);
-    artStrip(svg, 14, 88, 6, 0, 33, 32, []);
-    artBands(svg, 14, 122, 33, [[0, C.red], [5, C.yel]]);   // the chord cursor's bands: C and F (G is past the edge)
+    const svg = $("art-classic"), w = 33;
+    const page = torn(10, 226, 46, 196, 0, 0, false);
+    el(svg, "path", { d: page, fill: C.sheet, stroke: C.ink, "stroke-width": 1.4, "stroke-linejoin": "round" });
+    const defs = el(svg, "defs", {});
+    el(el(defs, "clipPath", { id: "classic-page" }), "path", { d: page });
+    const g = el(svg, "g", { "clip-path": "url(#classic-page)" });
+    blankCells(g, 14 + 6 * w, 88, 1, 6, w, 32);
+    artStrip(g, 14, 88, 6, 0, w, 32, []);                    // the bottom strip, from its first C
+    artBands(g, 14, 122, w, [[0, C.red], [5, C.yel]]);   // the chord cursor's bands: C and F (G is past the edge)
+    textLines(g, 22, 134, [150, 180, 110, 160, 130]);
+    // the slider, over the top edge
+    const slider = torn(2, 226, 38, 78);                                                 // torn at both ends
+    el(el(defs, "clipPath", { id: "classic-slider" }), "path", { d: slider });
+    el(svg, "path", { d: torn(2, 226, 42, 82, 4, 0), fill: C.ink, opacity: .15 });        // its shadow
+    const sg = el(svg, "g", { "clip-path": "url(#classic-slider)" });
+    el(sg, "path", { d: slider, fill: C.shade });                                           // the flap, behind the page
+    el(sg, "line", { x1: 0, y1: 46, x2: 300, y2: 46, stroke: C.ink, "stroke-width": 1 });   // the fold
+    blankCells(sg, 14 - 2 * w, 46, 2, 0, w, 32); blankCells(sg, 14 + 6 * w, 46, 1, 8, w, 32);
+    artStrip(sg, 14, 46, 6, 2, w, 32, []);
+    el(svg, "path", { d: slider, fill: "none", stroke: C.ink, "stroke-width": 1.2, "stroke-linejoin": "round" });
+    el(svg, "line", { x1: 10, y1: 38, x2: 10, y2: 196, stroke: C.ink, "stroke-width": 1.4 });   // the left edge, in front, top to bottom
     arrowH(svg, 40, 190, 31);
     label(svg, 115, 24, "slides along the top edge", { anchor: "middle" });
-    textLines(svg, 22, 134, [150, 180, 110, 160, 130]);
     // side view
-    label(svg, 262, 46, "side view", { anchor: "middle" });
-    el(svg, "line", { x1: 262, y1: 70, x2: 262, y2: 190, stroke: C.ink, "stroke-width": 3 });
-    el(svg, "path", { d: "M254 128 L254 70 Q254 60 262 60 Q270 60 270 70 L270 94", fill: "none", stroke: C.red, "stroke-width": 3, "stroke-linecap": "round" });
-    label(svg, 248, 112, "front", { anchor: "end", size: 11 });
-    label(svg, 276, 90, "flap", { size: 11 });
-    label(svg, 268, 186, "page", { size: 11 });
+    label(svg, 266, 46, "side view", { anchor: "middle" });
+    el(svg, "line", { x1: 266, y1: 70, x2: 266, y2: 190, stroke: C.ink, "stroke-width": 3 });
+    el(svg, "path", { d: "M258 128 L258 70 Q258 60 266 60 Q274 60 274 70 L274 94", fill: "none", stroke: C.red, "stroke-width": 3, "stroke-linecap": "round" });
+    label(svg, 253, 112, "front", { anchor: "end", size: 11 });
+    label(svg, 279, 90, "flap", { size: 11 });
+    label(svg, 272, 186, "page", { size: 11 });
   })();
 
-  // Sleeve: the slider runs through a sleeve; the window shows it lined up so D sits over C.
+  // Sleeve: the slider runs through a sleeve; the window shows it lined up so D sits over C. Both are
+  // longer than the picture, so their ends are torn off, and the window and strip run to the tears.
   (function () {
-    const svg = $("art-sleeve"), w = 32.67;
-    el(svg, "rect", { x: -4, y: 46, width: 308, height: 104, fill: C.sheet, stroke: C.ink, "stroke-width": 1.2 });   // the slider: nearly as tall as the sleeve
-    artStrip(svg, 52 - 2 * w, 56, 10, 0, w, 32, [2, 7]);   // frames only inside the window: the A past the sleeve isn't marked
-    el(svg, "path", { d: "M46 48 H266 V160 H46 Z M52 55 V95 H254 V55 Z", "fill-rule": "evenodd", fill: C.ink, opacity: .15 });
-    el(svg, "path", { d: "M40 42 H260 V154 H40 Z M52 55 V89 H248 V55 Z", "fill-rule": "evenodd", fill: C.sheet, stroke: C.ink, "stroke-width": 1.4 });
-    el(svg, "rect", { x: 52, y: 55, width: 196, height: 34, fill: "none", stroke: C.ink, "stroke-width": 1.6 });
-    artStrip(svg, 52, 93, 6, 0, w, 30, [0, 5, 7]);
-    textLines(svg, 52, 132, [110, 80]);
+    const svg = $("art-sleeve"), w = 32.67, top = 42, bot = 154, wTop = 55, wBot = 89;
+    const defs = el(svg, "defs", {});
+    // the slider, poking out of both ends of the sleeve, its boxes unlabelled out there
+    el(el(defs, "clipPath", { id: "slider-clip" }), "path", { d: torn(12, 288, 46, 150) });
+    const sg = el(svg, "g", { "clip-path": "url(#slider-clip)" });
+    el(sg, "rect", { x: 0, y: 46, width: 300, height: 104, fill: C.sheet });
+    blankCells(sg, 52 - 3 * w, 56, 12, -1, w, 32);
+    el(svg, "path", { d: torn(12, 288, 46, 150), fill: "none", stroke: C.ink, "stroke-width": 1.2, "stroke-linejoin": "round" });
+    // the sleeve, with its shadow
+    el(svg, "path", { d: torn(40, 260, top, bot, 6, 6), fill: C.ink, opacity: .15 });
+    el(el(defs, "clipPath", { id: "sleeve-clip" }), "path", { d: torn(40, 260, top, bot) });
+    const g = el(svg, "g", { "clip-path": "url(#sleeve-clip)" });
+    el(g, "rect", { x: 0, y: top, width: 300, height: bot - top, fill: C.sheet });
+    blankCells(g, 52 - w, 56, 1, 1, w, 32); blankCells(g, 52 + 6 * w, 56, 1, 8, w, 32);   // the slider, through the window
+    artStrip(g, 52, 56, 6, 2, w, 32, []);
+    el(g, "path", { d: torn(40, 260, top, wTop), fill: C.sheet });                       // the sleeve above the window
+    el(g, "path", { d: torn(40, 260, wBot, bot), fill: C.sheet });                       // and below it
+    el(g, "line", { x1: 0, y1: wTop, x2: 300, y2: wTop, stroke: C.ink, "stroke-width": 1.6 });
+    el(g, "line", { x1: 0, y1: wBot, x2: 300, y2: wBot, stroke: C.ink, "stroke-width": 1.6 });
+    blankCells(g, 52 - w, 93, 1, 11, w, 30); blankCells(g, 52 + 6 * w, 93, 1, 6, w, 30);   // the fixed strip
+    artStrip(g, 52, 93, 6, 0, w, 30, []);
+    // the chord sleeve's marks: caps above the window (D and G) and bands below the strip (C and F)
+    artBands(g, 52, 48, w, [[0, C.red], [5, C.yel]]);
+    artBands(g, 52, 124.5, w, [[0, C.red], [5, C.yel]]);
+    textLines(g, 52, 136, [110, 80]);
+    el(svg, "path", { d: torn(40, 260, top, bot), fill: "none", stroke: C.ink, "stroke-width": 1.4, "stroke-linejoin": "round" });
     arrowH(svg, 90, 210, 35);   // the same gaps above the sleeve as the Classic picture's above its flap
     label(svg, 150, 28, "slides through the sleeve", { anchor: "middle" });
     label(svg, 150, 182, "window above, fixed strip below", { anchor: "middle", size: 11 });
