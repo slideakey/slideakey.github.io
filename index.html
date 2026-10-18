@@ -996,11 +996,15 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   // A piece of paper from x0 to x1 and y0 to y1 with both ends torn off: the picture is a close-up of
   // something longer. dx, dy shift it, for a shadow.
   function torn(x0, x1, y0, y1, dx = 0, dy = 0, tornLeft = true, step = 7) {
+    // The teeth sit on a fixed grid (every `step` units down from the top of the picture), so where
+    // two torn pieces overlap, their tears line up; the ends are placed on the line between teeth.
     const edge = (x, flip) => {
-      const pts = [];
       if (flip === 1 && !tornLeft) return [[x, y0], [x, y1]];   // a real, straight end
-      for (let y = y0, k = 0; y <= y1 + 0.01; y += step, k++) pts.push([x + (k % 2 ? 4 : -2) * flip, Math.min(y, y1)]);
-      if (pts[pts.length - 1][1] < y1) pts.push([x, y1]);
+      const tooth = k => (k % 2 ? 4 : -2) * flip;
+      const off = y => { const u = y / step, k = Math.floor(u); return tooth(k) + (tooth(k + 1) - tooth(k)) * (u - k); };
+      const pts = [[x + off(y0), y0]];
+      for (let k = Math.floor(y0 / step) + 1; k * step < y1; k++) pts.push([x + tooth(k), k * step]);
+      pts.push([x + off(y1), y1]);
       return pts;
     };
     return "M" + edge(x0, 1).concat(edge(x1, -1).reverse()).map(([x, y]) => (x + dx) + " " + (y + dy)).join(" L") + " Z";
