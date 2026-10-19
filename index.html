@@ -31,7 +31,7 @@
   --red: #C0392B;
   --yellow: #FFD84D;
   --green: #63CF8F;   /* V, like traffic lights: red I, yellow IV, green V */
-  --blue: #3D95EE;    /* vi, the minor chord */
+  --blue: #7DB9F5;    /* vi, the minor chord */
   --gold: #D4A62A;
   --gold-d: #8C6A12;
   --shade: #E6DCC6;
@@ -781,7 +781,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     [[outerPaths, rel, 0], [innerPaths, relTo, shift]].forEach(([paths, root, sh]) => paths.forEach((p, i) => {   // I red with white letters, V green, vi blue
       if (i === root) p.setAttribute("fill", "#C0392B");
       if (i === mod(five + sh)) p.setAttribute("fill", "#63CF8F");
-      if (i === mod(six + sh)) p.setAttribute("fill", "#3D95EE");
+      if (i === mod(six + sh)) p.setAttribute("fill", "#7DB9F5");
       const tx = p.nextSibling;
       tx.setAttribute("fill", i === root ? "#FFFFFF" : "#2B2118");
       tx.classList.toggle("onred", i === root);
