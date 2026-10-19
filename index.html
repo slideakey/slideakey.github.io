@@ -169,6 +169,7 @@ select {
 .cell.sharp { background: var(--shade); place-items: unset; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; gap: 2px; }
 .cell small { font-size: .66em; }
 .flat { font-family: var(--music); font-size: 1.2em; font-weight: 400; -webkit-text-stroke: .3px currentColor; }
+.maps .flat, .chip .flat, .big .flat { line-height: 0; }   /* a flat in the readout doesn't push its chord off the line */
 svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is thin; a hairline outline matches the letters */
 .cell.hi { background: var(--yellow); }
 .cell.root { background: var(--red); color: #fff; }   /* I: red, IV and V yellow, vi green */
@@ -724,7 +725,14 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   /* ---------- controls ---------- */
   const fromSel = $("fromKey"), toSel = $("toKey");
   let minor = false;                         // "Song is in [A] [minor]": major by default
-  const keyName = (i) => NOTES[i] + (minor ? "m" : "");
+  // Chord names are spelled for their key: flats in F, B♭, E♭, A♭ and D♭ major and in Dm, Gm, Cm, Fm, B♭m and
+  // E♭m, sharps everywhere else. F#/G♭ major and D#/E♭ minor are one pitch each: F# major and E♭ minor are the
+  // names most people use, so the two lists differ there.
+  const FLAT_MAJOR = [5, 10, 3, 8, 1], FLAT_MINOR = [2, 7, 0, 5, 10, 3];
+  const flatKey = (i) => (minor ? FLAT_MINOR : FLAT_MAJOR).includes(i);
+  const spell = (i, flat) => flat && FLAT_OF[NOTES[i]] ? FLAT_OF[NOTES[i]] + '<span class="flat">\u266D</span>' : NOTES[i];
+  const spoken = (i, flat) => flat && FLAT_OF[NOTES[i]] ? FLAT_OF[NOTES[i]] + " flat" : NOTES[i];   // for screen readers
+  const keyName = (i) => spell(i, flatKey(i)) + (minor ? "m" : "");
   const keyLabel = (n, q) => FLAT_OF[n] ? n + q + " / " + flatName(n) + q : n + q;
   NOTES.forEach((n, i) => fromSel.add(new Option(keyLabel(n, ""), i)));   // the note; the type has its own menu
   function fillMenus() {                     // "Move it to" names whole keys, so it follows the type: B or Bm
@@ -775,27 +783,31 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
     // readout
     const down = shift === 0 ? 0 : 12 - shift;
-    $("moveText").textContent = shift === 0
+    const fF = flatKey(from), tF = flatKey(to);   // spell each side for its own key
+    $("moveText").innerHTML = shift === 0
       ? "From " + keyName(from) + " to " + keyName(to) + ": no change. Slide it!"
       : "From " + keyName(from) + " to " + keyName(to) + ": up " + shift + (shift === 1 ? " box" : " boxes") + " (or down " + down + ")";
-    $("maps").innerHTML = "<span class='note' style='align-self:center'>Main chords:</span>" + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return "<span><i class='deg" + (k === 0 ? " root" : k === 3 ? " six" : "") + "' aria-hidden='true'>" + ["I", "IV", "V", "vi"][k] + ".</i>" + NOTES[t] + q + " becomes <b>" + NOTES[mod(t + shift)] + q + "</b></span>"; }).join("");
+    // in a minor key the numerals count from the related major, so the label names it (A minor: "numbered from C major")
+    const mainLabel = minor ? "Main chords (numbered from " + spell(rel, fF) + " major):" : "Main chords:";
+    $("maps").innerHTML = "<span class='note' style='align-self:center'>" + mainLabel + "</span>" + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return "<span><i class='deg" + (k === 0 ? " root" : k === 3 ? " six" : "") + "' aria-hidden='true'>" + ["I", "IV", "V", "vi"][k] + ".</i>" + spell(t, fF) + q + " becomes <b>" + spell(mod(t + shift), tF) + q + "</b></span>"; }).join("");
     // major: iii, ii and V7; minor: the key's own iv, v and V7 (Dm, Em and E7 in Am), the chords older
     // minor-key songs lean on. Counted from the key's note; the main chords are shown above.
     const base = minor ? from : rel;
     const chordSet = minor ? [[5, "m"], [7, "m"], [7, "7"]] : [[4, "m"], [2, "m"], [7, "7"]];
     $("chords").innerHTML = "<span class='note' style='align-self:center'>Other chords:</span>" + chordSet.map(([iv, q]) => {
-      const a = NOTES[mod(base + iv)] + q, b = NOTES[mod(base + iv + shift)] + q;
+      const a = spell(mod(base + iv), fF) + q, b = spell(mod(base + iv + shift), tF) + q;
       return "<span class='chip'>" + a + " &rarr; <b>" + b + "</b></span>";
     }).join("");
-    const anySharp = chordSet.some(([iv]) => NOTES[mod(base + iv + shift)].includes("#")) || tones.some(t => NOTES[mod(t + shift)].includes("#"));
-    $("sharpNote").textContent = anySharp ? "A# is the same note as B♭, D# as E♭, and so on. The shaded boxes show both names. " + (minor ? "Moving to Dm, Gm, Cm, Fm, B♭m or E♭m?" : "Moving to F, B♭, E♭, A♭, D♭ or G♭?") + " Read the flat names." : "";   // the flat keys, major or minor
+    const anySharp = chordSet.some(([iv]) => NOTES[mod(base + iv + shift)].includes("#")) || tones.some(t => NOTES[mod(t + shift)].includes("#"));   // any black-key chord in the new key
+    $("sharpNote").textContent = anySharp ? "A# and B♭ are the same note, and so on: the shaded boxes show both names. The chords above use the name that suits each key." : "";
     setTimeout(() => sliderRow.classList.remove("dragging"), 0);
 
     // one combined sentence for screen readers, only when the visitor changes the key
     if (speak) {
-      const said = (shift === 0 ? "From " + keyName(from) + " to " + keyName(to) + ": no change."
-        : "From " + keyName(from) + " to " + keyName(to) + ": up " + shift + (shift === 1 ? " box. " : " boxes. ")
-          + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return NOTES[t] + q + " becomes " + NOTES[mod(t + shift)] + q; }).join(", ") + ".");
+      const m = minor ? " minor" : "", sayKey = (i, fl) => spoken(i, fl) + m;
+      const said = (shift === 0 ? "From " + sayKey(from, fF) + " to " + sayKey(to, tF) + ": no change."
+        : "From " + sayKey(from, fF) + " to " + sayKey(to, tF) + ": up " + shift + (shift === 1 ? " box. " : " boxes. ")
+          + order.map(k => { const t = tones[k], q = k === 3 ? " minor" : ""; return spoken(t, fF) + q + " becomes " + spoken(mod(t + shift), tF) + q; }).join(", ") + ".");
       const live = $("announce");
       live.textContent = "";
       setTimeout(() => { live.textContent = said; }, 50);
