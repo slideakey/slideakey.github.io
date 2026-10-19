@@ -18,9 +18,7 @@ The licence applies to all Slide-a-Key printables and accompanying text:
   * Slide-a-Key Musical Transposer, Classic Edition (PDF)
   * Slide-a-Key Musical Transposer, Pocket Edition (PDF)
   * Slide-a-Key Musical Transposer, Sleeve Edition (PDF)
-  * The Pocket Edition chord arm add-on (PDF)
-  * The Sleeve Edition chord sleeve add-on (PDF)
-  * The Classic Edition chord cursor add-on (PDF)
+  * The Chord Finder Classic, Chord Finder Pocket and Chord Finder Sleeve add-ons (PDF)
   * The README and teacher's guide (Markdown and PDF) and this licence file
   * The slideakey.com website page (index.html) and its README
 
