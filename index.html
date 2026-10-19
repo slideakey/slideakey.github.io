@@ -135,6 +135,7 @@ select {
 }
 .nudge { font-family: var(--mono); font-size: 18px; width: 40px; height: 36px; background: var(--sheet); color: var(--ink); border: 2px solid var(--ink); cursor: pointer; }
 .nudge:hover { background: var(--row); }
+.keypick { display: flex; align-items: center; gap: 8px; }   /* reads as a sentence: Song is in [A] [minor] */
 .sound-toggle { font-family: var(--mono); font-size: 16px; height: 36px; padding: 0 12px; background: var(--sheet); color: var(--ink); border: 2px solid var(--ink); cursor: pointer; }
 .sound-toggle:hover { background: var(--row); }
 .sound-toggle .spk { width: 20px; height: 20px; vertical-align: -5px; margin-left: 0; }
@@ -456,9 +457,11 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     <p class="lede">Pick the key your song is in and the key you want. Or grab the top strip and slide it, or turn the wheel.</p>
 
     <div class="controls">
-      <label for="fromKey">Song is in
+      <span class="keypick">
+        <label for="fromKey">Song is in</label>
         <select id="fromKey"></select>
-      </label>
+        <select id="keyType" aria-label="Major or minor key"><option value="major">major</option><option value="minor">minor</option></select>
+      </span>
       <label for="toKey">Move it to
         <select id="toKey"></select>
       </label>
@@ -483,7 +486,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
           <!-- hidden: one sentence read aloud by screen readers when the key settles -->
           <div class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></div>
           <div class="chords" id="chords"></div>
-          <div class="note">I, IV, V and vi are Roman numerals for 1, 4, 5 and 6, and small letters mean a minor chord. Together they're the main chords in lots of songs. Song in a minor key, like Am? Set it so the green box sits on the key's note.</div>
+          <div class="note">I, IV, V and vi are Roman numerals for 1, 4, 5 and 6, and small letters mean a minor chord. Together they're the main chords in lots of songs. Song in a minor key? Choose minor: the green box is your key, and the numerals still count from the red.</div>
           <div class="note" id="sharpNote"></div>
         </div>
       </div>
@@ -720,11 +723,16 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
   /* ---------- controls ---------- */
   const fromSel = $("fromKey"), toSel = $("toKey");
-  NOTES.forEach((n, i) => {
-    const label = FLAT_OF[n] ? n + " / " + flatName(n) : n;
-    fromSel.add(new Option(label, i));
-    toSel.add(new Option(label, i));
-  });
+  let minor = false;                         // "Song is in [A] [minor]": major by default
+  const keyName = (i) => NOTES[i] + (minor ? "m" : "");
+  const keyLabel = (n, q) => FLAT_OF[n] ? n + q + " / " + flatName(n) + q : n + q;
+  NOTES.forEach((n, i) => fromSel.add(new Option(keyLabel(n, ""), i)));   // the note; the type has its own menu
+  function fillMenus() {                     // "Move it to" names whole keys, so it follows the type: B or Bm
+    const v = toSel.value; toSel.innerHTML = "";
+    NOTES.forEach((n, i) => toSel.add(new Option(keyLabel(n, minor ? "m" : ""), i)));
+    toSel.value = v;
+  }
+  fillMenus();
 
   const mainChords = (root) => [root, mod(root + 5), mod(root + 7), mod(root + 9)];   // roots of the I, IV, V and vi chords
 
@@ -736,12 +744,16 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     // strips
     sliderRow.classList.toggle("dragging", !animate);
     placeSlider(snapOffset());
-    const tones = mainChords(from);
+    // In a minor key the green (vi) sits on the key's note, as the sheets say, so the red (I) is 3 boxes up
+    // and the numerals count from it. The readout starts from the green: the key's own chord comes first.
+    const rel = minor ? mod(from + 3) : from, relTo = mod(rel + shift);
+    const tones = mainChords(rel);
+    const order = minor ? [3, 1, 0, 2] : [0, 1, 2, 3];
     const six = tones[3], sixTo = mod(six + shift);
     baseCells.forEach((c, i) => c.classList.toggle("hi", tones.slice(1, 3).includes(i)));                       // IV and V: yellow
     sliderCells.forEach((c, j) => c.classList.toggle("hi", tones.slice(1, 3).map(t => mod(t + shift)).includes(j % 12)));
-    baseCells.forEach((c, i) => c.classList.toggle("root", i === from));          // I: red, as on the add-ons
-    sliderCells.forEach((c, j) => c.classList.toggle("root", j % 12 === to));
+    baseCells.forEach((c, i) => c.classList.toggle("root", i === rel));           // I: red, as on the add-ons
+    sliderCells.forEach((c, j) => c.classList.toggle("root", j % 12 === relTo));
     baseCells.forEach((c, i) => c.classList.toggle("six", i === six));            // vi: green
     sliderCells.forEach((c, j) => c.classList.toggle("six", j % 12 === sixTo));
 
@@ -753,7 +765,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     inner.style.transform = "rotate(" + innerRot + "deg)";
     outerPaths.forEach((p, i) => p.setAttribute("fill", tones.includes(i) ? "#FFD84D" : (NOTES[i].includes("#") ? "#E6DCC6" : "#FFFFFF")));
     innerPaths.forEach((p, j) => p.setAttribute("fill", tones.map(t => mod(t + shift)).includes(j) ? "#FFD84D" : (NOTES[j].includes("#") ? "#E6DCC6" : "#FFFFFF")));
-    [[outerPaths, from, six], [innerPaths, to, sixTo]].forEach(([paths, root, vi]) => paths.forEach((p, i) => {   // I: red, vi: green, with white letters
+    [[outerPaths, rel, six], [innerPaths, relTo, sixTo]].forEach(([paths, root, vi]) => paths.forEach((p, i) => {   // I: red, vi: green, with white letters
       if (i === root) p.setAttribute("fill", "#C0392B");
       if (i === vi) p.setAttribute("fill", "#3E9B4F");
       const tx = p.nextSibling;
@@ -764,23 +776,26 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     // readout
     const down = shift === 0 ? 0 : 12 - shift;
     $("moveText").textContent = shift === 0
-      ? "From " + NOTES[from] + " to " + NOTES[to] + ": no change. Slide it!"
-      : "From " + NOTES[from] + " to " + NOTES[to] + ": up " + shift + (shift === 1 ? " box" : " boxes") + " (or down " + down + ")";
-    $("maps").innerHTML = "<span class='note' style='align-self:center'>Main chords:</span>" + tones.map((t, k) => { const q = k === 3 ? "m" : ""; return "<span><i class='deg" + (k === 0 ? " root" : k === 3 ? " six" : "") + "' aria-hidden='true'>" + ["I", "IV", "V", "vi"][k] + ".</i>" + NOTES[t] + q + " becomes <b>" + NOTES[mod(t + shift)] + q + "</b></span>"; }).join("");
-    const chordSet = [[4, "m"], [2, "m"], [7, "7"]];   // iii, ii and V7: the main chords are shown above
+      ? "From " + keyName(from) + " to " + keyName(to) + ": no change. Slide it!"
+      : "From " + keyName(from) + " to " + keyName(to) + ": up " + shift + (shift === 1 ? " box" : " boxes") + " (or down " + down + ")";
+    $("maps").innerHTML = "<span class='note' style='align-self:center'>Main chords:</span>" + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return "<span><i class='deg" + (k === 0 ? " root" : k === 3 ? " six" : "") + "' aria-hidden='true'>" + ["I", "IV", "V", "vi"][k] + ".</i>" + NOTES[t] + q + " becomes <b>" + NOTES[mod(t + shift)] + q + "</b></span>"; }).join("");
+    // major: iii, ii and V7; minor: the key's own iv, v and V7 (Dm, Em and E7 in Am), the chords older
+    // minor-key songs lean on. Counted from the key's note; the main chords are shown above.
+    const base = minor ? from : rel;
+    const chordSet = minor ? [[5, "m"], [7, "m"], [7, "7"]] : [[4, "m"], [2, "m"], [7, "7"]];
     $("chords").innerHTML = "<span class='note' style='align-self:center'>Other chords:</span>" + chordSet.map(([iv, q]) => {
-      const a = NOTES[mod(from + iv)] + q, b = NOTES[mod(from + iv + shift)] + q;
+      const a = NOTES[mod(base + iv)] + q, b = NOTES[mod(base + iv + shift)] + q;
       return "<span class='chip'>" + a + " &rarr; <b>" + b + "</b></span>";
     }).join("");
-    const anySharp = chordSet.some(([iv]) => NOTES[mod(from + iv + shift)].includes("#")) || tones.some(t => NOTES[mod(t + shift)].includes("#"));
-    $("sharpNote").textContent = anySharp ? "A# is the same note as B♭, D# as E♭, and so on. The shaded boxes show both names. Moving to F, B♭, E♭, A♭, D♭ or G♭? Read the flat names." : "";
+    const anySharp = chordSet.some(([iv]) => NOTES[mod(base + iv + shift)].includes("#")) || tones.some(t => NOTES[mod(t + shift)].includes("#"));
+    $("sharpNote").textContent = anySharp ? "A# is the same note as B♭, D# as E♭, and so on. The shaded boxes show both names. " + (minor ? "Moving to Dm, Gm, Cm, Fm, B♭m or E♭m?" : "Moving to F, B♭, E♭, A♭, D♭ or G♭?") + " Read the flat names." : "";   // the flat keys, major or minor
     setTimeout(() => sliderRow.classList.remove("dragging"), 0);
 
     // one combined sentence for screen readers, only when the visitor changes the key
     if (speak) {
-      const said = (shift === 0 ? "From " + NOTES[from] + " to " + NOTES[to] + ": no change."
-        : "From " + NOTES[from] + " to " + NOTES[to] + ": up " + shift + (shift === 1 ? " box. " : " boxes. ")
-          + tones.map((t, k) => { const q = k === 3 ? "m" : ""; return NOTES[t] + q + " becomes " + NOTES[mod(t + shift)] + q; }).join(", ") + ".");
+      const said = (shift === 0 ? "From " + keyName(from) + " to " + keyName(to) + ": no change."
+        : "From " + keyName(from) + " to " + keyName(to) + ": up " + shift + (shift === 1 ? " box. " : " boxes. ")
+          + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return NOTES[t] + q + " becomes " + NOTES[mod(t + shift)] + q; }).join(", ") + ".");
       const live = $("announce");
       live.textContent = "";
       setTimeout(() => { live.textContent = said; }, 50);
@@ -793,6 +808,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   toSel.addEventListener("change", () => { shift = mod(+toSel.value - from); render(true, true); });
   $("up").addEventListener("click", () => { shift = mod(shift - 1); render(true, true); });
   $("down").addEventListener("click", () => { shift = mod(shift + 1); render(true, true); });
+  // changing the key type keeps the same note (C becomes Cm) and moves the marks to suit
+  $("keyType").addEventListener("change", () => { minor = $("keyType").value === "minor"; fillMenus(); render(true, true); });
 
   // tap a note on the fixed strip or the outer ring to make it the key you're in. It works like the
   // "Song is in" menu (the key you want stays put and the slider glides to match), and the menus stay
