@@ -422,7 +422,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     <div class="sub">Musical Transposer</div>
     <div class="tag">cut it, slide it, play it in any key</div>
     <div class="burst-row">
-      <svg class="burst" viewBox="-274 -136 548 272" role="img" aria-label="No batteries! No app! No subscription! Works in all 12 keys! Scissors not included.">
+      <svg class="burst" viewBox="-274 -148 548 284" role="img" aria-label="No batteries! No app! No subscription! Works in all 12 keys! Scissors not included.">
         <polygon id="burstShadow" fill="#2B2118" transform="translate(6,6)"></polygon>
         <polygon id="burstFill" fill="#FFD84D" stroke="#C0392B" stroke-width="3" stroke-linejoin="round"></polygon>
         <g transform="rotate(-3)">
@@ -622,7 +622,11 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const pts = [];
     for (let i = 0; i < n * 2; i++) {
       const a = Math.PI * i / n + (rnd() - .5) * .08;
-      const r = (i % 2 ? 0.8 : 1) * (0.95 + rnd() * 0.1);
+      let r = (i % 2 ? 0.8 : 1) * (0.95 + rnd() * 0.1);
+      if (i % 2 === 0) {                 // points up: spikes grow a little towards the top, and the top one is longest
+        r *= 1 - 0.06 * Math.sin(a);     // (SVG's y runs down, so the top is where sin(a) is -1)
+        if (i === n * 3 / 2) r = Math.max(r, 1.10);
+      }
       pts.push((rx * r * Math.cos(a)).toFixed(1) + "," + (ry * r * Math.sin(a)).toFixed(1));
     }
     return pts.join(" ");
