@@ -30,7 +30,8 @@
   --ink: #2B2118;
   --red: #C0392B;
   --yellow: #FFD84D;
-  --green: #63CF8F;   /* V, like traffic lights: red I, yellow IV, green V */
+  --tonic: #2E7D4F;   /* I: a darker green, with white letters: home, where songs come to rest */
+  --dominant: #F29A92;   /* V: a pale red, with dark letters: the tension that pushes back home */
   --blue: #7DB9F5;    /* vi, the minor chord */
   --gold: #D4A62A;
   --gold-d: #8C6A12;
@@ -173,8 +174,8 @@ select {
 .maps .flat, .chip .flat, .big .flat { line-height: 0; }   /* a flat in the readout doesn't push its chord off the line */
 svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is thin; a hairline outline matches the letters */
 .cell.hi { background: var(--yellow); }
-.cell.root { background: var(--red); color: #fff; }   /* I red, IV yellow, V green, vi blue */
-.cell.five { background: var(--green); }
+.cell.root { background: var(--tonic); color: #fff; }   /* I green, IV yellow, V red, vi blue */
+.cell.five { background: var(--dominant); }
 .cell.six { background: var(--blue); }
 svg text.onred .flat { stroke: #fff; }
 .cutline { border-top: 2px dashed var(--muted); position: relative; height: 0; margin: 2px 0; width: calc(var(--box) * 12 - 16.5px); max-width: 100%; }
@@ -185,9 +186,9 @@ svg text.onred .flat { stroke: #fff; }
 .maps span b { color: var(--red); font-weight: 600; }
 .maps .note { font-family: var(--body); }
 .maps .deg { font-family: var(--display); font-style: normal; font-size: 15.5px; color: var(--muted); margin-right: 6px; }   /* I, IV, V, vi: sized by eye to sit level with the chord letters */
-.maps .deg.root { color: var(--red); }   /* I in red, like its box on the strips and the wheel */
+.maps .deg.root { color: var(--tonic); }   /* I in green, like its box on the strips and the wheel */
 .maps .deg.four { color: #A8820F; }   /* IV, V and vi in darker shades of their colours, readable on the paper */
-.maps .deg.five { color: #2E8B57; }
+.maps .deg.five { color: #C0392B; }
 .maps .deg.six { color: #2F7AC8; }
 .chords { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
@@ -491,7 +492,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
           <!-- hidden: one sentence read aloud by screen readers when the key settles -->
           <div class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></div>
           <div class="chords" id="chords"></div>
-          <div class="note">I, IV, V, and vi are Roman numerals for 1, 4, 5, and 6, and small letters mean a minor chord. Together they're the main chords in lots of songs. Song in a minor key? Choose minor: the blue box is your key, and the numerals still count from the red.</div>
+          <div class="note">I, IV, V, and vi are Roman numerals for 1, 4, 5, and 6, and small letters mean a minor chord. Together they're the main chords in lots of songs. Song in a minor key? Choose minor: the blue box is your key, and the numerals still count from the green.</div>
           <div class="note" id="sharpNote"></div>
         </div>
       </div>
@@ -748,7 +749,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
   const mainChords = (root) => [root, mod(root + 5), mod(root + 7), mod(root + 9)];   // roots of the I, IV, V and vi chords
 
-  function render(animate, speak) {
+  function render(animate, speak, newHome) {   // newHome: the song's key was just picked, so play its chord
     const to = mod(from + shift);
     fromSel.value = from;
     toSel.value = to;
@@ -756,16 +757,16 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     // strips
     sliderRow.classList.toggle("dragging", !animate);
     placeSlider(snapOffset());
-    // In a minor key the blue (vi) sits on the key's note, as the sheets say, so the red (I) is 3 boxes up
+    // In a minor key the blue (vi) sits on the key's note, as the sheets say, so the green (I) is 3 boxes up
     // and the numerals count from it. The readout starts from the blue: the key's own chord comes first.
     const rel = minor ? mod(from + 3) : from, relTo = mod(rel + shift);
     const tones = mainChords(rel);
     const order = minor ? [3, 1, 0, 2] : [0, 1, 2, 3];
     const six = tones[3], sixTo = mod(six + shift);
     const four = tones[1], five = tones[2];
-    baseCells.forEach((c, i) => { c.classList.toggle("hi", i === four); c.classList.toggle("five", i === five); });   // IV yellow, V green
+    baseCells.forEach((c, i) => { c.classList.toggle("hi", i === four); c.classList.toggle("five", i === five); });   // IV yellow, V red
     sliderCells.forEach((c, j) => { c.classList.toggle("hi", j % 12 === mod(four + shift)); c.classList.toggle("five", j % 12 === mod(five + shift)); });
-    baseCells.forEach((c, i) => c.classList.toggle("root", i === rel));           // I: red, as on the add-ons
+    baseCells.forEach((c, i) => c.classList.toggle("root", i === rel));           // I: green, as on the add-ons
     sliderCells.forEach((c, j) => c.classList.toggle("root", j % 12 === relTo));
     baseCells.forEach((c, i) => c.classList.toggle("six", i === six));            // vi: blue
     sliderCells.forEach((c, j) => c.classList.toggle("six", j % 12 === sixTo));
@@ -778,9 +779,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     inner.style.transform = "rotate(" + innerRot + "deg)";
     outerPaths.forEach((p, i) => p.setAttribute("fill", tones.includes(i) ? "#FFD84D" : (NOTES[i].includes("#") ? "#E6DCC6" : "#FFFFFF")));
     innerPaths.forEach((p, j) => p.setAttribute("fill", tones.map(t => mod(t + shift)).includes(j) ? "#FFD84D" : (NOTES[j].includes("#") ? "#E6DCC6" : "#FFFFFF")));
-    [[outerPaths, rel, 0], [innerPaths, relTo, shift]].forEach(([paths, root, sh]) => paths.forEach((p, i) => {   // I red with white letters, V green, vi blue
-      if (i === root) p.setAttribute("fill", "#C0392B");
-      if (i === mod(five + sh)) p.setAttribute("fill", "#63CF8F");
+    [[outerPaths, rel, 0], [innerPaths, relTo, shift]].forEach(([paths, root, sh]) => paths.forEach((p, i) => {   // I green with white letters, V red, vi blue
+      if (i === root) p.setAttribute("fill", "#2E7D4F");
+      if (i === mod(five + sh)) p.setAttribute("fill", "#F29A92");
       if (i === mod(six + sh)) p.setAttribute("fill", "#7DB9F5");
       const tx = p.nextSibling;
       tx.setAttribute("fill", i === root ? "#FFFFFF" : "#2B2118");
@@ -814,6 +815,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       const said = (shift === 0 ? "From " + sayKey(from, fF) + " to " + sayKey(to, tF) + ": no change."
         : "From " + sayKey(from, fF) + " to " + sayKey(to, tF) + ": up " + shift + (shift === 1 ? " box. " : " boxes. ")
           + order.map(k => { const t = tones[k], q = k === 3 ? " minor" : ""; return spoken(t, fF) + q + " becomes " + spoken(mod(t + shift), tF) + q; }).join(", ") + ".");
+      chord(newHome ? from : to);            // the home chord of the key just picked: major, or minor in a minor key
       const live = $("announce");
       live.textContent = "";
       setTimeout(() => { live.textContent = said; }, 50);
@@ -822,7 +824,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
   let touched = false;                       // set by real use of the demo (not by a finger scrolling past it)
   ["change", "click", "keydown"].forEach(ev => $("try").addEventListener(ev, () => { touched = true; }));
-  fromSel.addEventListener("change", () => { const to = mod(from + shift); from = +fromSel.value; shift = mod(to - from); render(true, true); });
+  fromSel.addEventListener("change", () => { const to = mod(from + shift); from = +fromSel.value; shift = mod(to - from); render(true, true, true); });
   toSel.addEventListener("change", () => { shift = mod(+toSel.value - from); render(true, true); });
   $("up").addEventListener("click", () => { shift = mod(shift - 1); render(true, true); });
   $("down").addEventListener("click", () => { shift = mod(shift + 1); render(true, true); });
@@ -834,8 +836,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   // the keyboard route. One handler per strip, so screen readers don't hear "clickable" on every box.
   function setFrom(i) {
     touched = true;
-    if (i !== from) { const to = mod(from + shift); from = i; shift = mod(to - from); render(true, true); }
-    tick(0);
+    if (i !== from) { const to = mod(from + shift); from = i; shift = mod(to - from); render(true, true, true); }   // the tapped key's home chord plays
+    else tick(0);
   }
   baseRow.addEventListener("click", (e) => {
     const c = e.target.closest(".cell");
@@ -844,7 +846,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
   // drag the slider: moving it left by one box shows the next note up
   // a soft note each time the slider or ring moves a box: it plays the key you're moving to,
-  // pitched in the octave starting at middle C (only while the visitor drags)
+  // pitched in the octave starting at middle C (only while the visitor drags); when the key settles,
+  // its home chord plays instead (see chord, below)
   let actx = null, soundOn = true, lastClick = 0;
   try { if (localStorage.getItem("sak-sound") === "off") soundOn = false; } catch (e) {}
   const soundBtn = $("soundBtn");
@@ -867,6 +870,45 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       vol.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
       osc.connect(vol); vol.connect(actx.destination);
       osc.start(t); osc.stop(t + 0.5);
+      notes = notes.filter(v => v.end > t).concat({ osc, vol, end: t + 0.5 });   // kept so mute can stop them
+    } catch (e) {}
+  }
+  // fade out sounds still playing within a twentieth of a second (a new chord does this to the last
+  // one, and the sound button to everything)
+  let notes = [], ringing = [];
+  function hush(list) {
+    const now = actx.currentTime;
+    list.forEach(({ osc, vol }) => {
+      if (vol.gain.cancelAndHoldAtTime) vol.gain.cancelAndHoldAtTime(now);
+      else { const g = vol.gain.value; vol.gain.cancelScheduledValues(now); vol.gain.setValueAtTime(Math.max(g, 0.0001), now); }
+      vol.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+      try { osc.stop(now + 0.06); } catch (e) {}
+    });
+  }
+  // when the key settles, its home chord: the green I in a major key, the blue vi (a minor chord) in a
+  // minor key. Three soft notes, spread a little like a gentle strum, from the key's note near middle C
+  // A new chord quickly fades out the one before, so rapid key changes don't pile up into a muddy,
+  // loud cluster: they sound like a quick run of chords, with only the last one ringing on.
+  function chord(key) {
+    if (!soundOn) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === "suspended") actx.resume();
+      const now = actx.currentTime;
+      hush(ringing);
+      ringing = [];
+      const t0 = now + 0.05;
+      [0, minor ? 3 : 4, 7].forEach((iv, k) => {
+        const t = t0 + k * 0.045, osc = actx.createOscillator(), vol = actx.createGain();
+        osc.type = "triangle";
+        osc.frequency.value = 261.63 * Math.pow(2, (key + iv) / 12);
+        vol.gain.setValueAtTime(0.0001, t);
+        vol.gain.exponentialRampToValueAtTime(0.11, t + 0.012);
+        vol.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+        osc.connect(vol); vol.connect(actx.destination);
+        osc.start(t); osc.stop(t + 1.25);
+        ringing.push({ osc, vol });
+      });
     } catch (e) {}
   }
   soundBtn.addEventListener("click", () => {
@@ -874,6 +916,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     try { localStorage.setItem("sak-sound", soundOn ? "on" : "off"); } catch (e) {}
     showSound();
     if (soundOn) tick(shift);                    // a sample note when it's switched on
+    else if (actx) { try { hush(ringing.concat(notes)); } catch (e) {} ringing = []; notes = []; }   // off means silence now
   });
 
   let dragStartX = 0, dragStartOffset = 0, dragging = false, dragBox = 0;
