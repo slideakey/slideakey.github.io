@@ -30,7 +30,8 @@
   --ink: #2B2118;
   --red: #C0392B;
   --yellow: #FFD84D;
-  --green: #3E9B4F;
+  --green: #63CF8F;   /* V, like traffic lights: red I, yellow IV, green V */
+  --blue: #3D95EE;    /* vi, the minor chord */
   --gold: #D4A62A;
   --gold-d: #8C6A12;
   --shade: #E6DCC6;
@@ -172,8 +173,9 @@ select {
 .maps .flat, .chip .flat, .big .flat { line-height: 0; }   /* a flat in the readout doesn't push its chord off the line */
 svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is thin; a hairline outline matches the letters */
 .cell.hi { background: var(--yellow); }
-.cell.root { background: var(--red); color: #fff; }   /* I: red, IV and V yellow, vi green */
-.cell.six { background: var(--green); color: #fff; }
+.cell.root { background: var(--red); color: #fff; }   /* I red, IV yellow, V green, vi blue */
+.cell.five { background: var(--green); }
+.cell.six { background: var(--blue); }
 svg text.onred .flat { stroke: #fff; }
 .cutline { border-top: 2px dashed var(--muted); position: relative; height: 0; margin: 2px 0; width: calc(var(--box) * 12 - 16.5px); max-width: 100%; }
 
@@ -184,7 +186,9 @@ svg text.onred .flat { stroke: #fff; }
 .maps .note { font-family: var(--body); }
 .maps .deg { font-family: var(--display); font-style: normal; font-size: 15.5px; color: var(--muted); margin-right: 6px; }   /* I, IV, V, vi: sized by eye to sit level with the chord letters */
 .maps .deg.root { color: var(--red); }   /* I in red, like its box on the strips and the wheel */
-.maps .deg.six { color: var(--green); }   /* vi in green, likewise */
+.maps .deg.four { color: #A8820F; }   /* IV, V and vi in darker shades of their colours, readable on the paper */
+.maps .deg.five { color: #2E8B57; }
+.maps .deg.six { color: #2F7AC8; }
 .chords { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   border: 1.5px solid var(--ink);
@@ -487,7 +491,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
           <!-- hidden: one sentence read aloud by screen readers when the key settles -->
           <div class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></div>
           <div class="chords" id="chords"></div>
-          <div class="note">I, IV, V and vi are Roman numerals for 1, 4, 5 and 6, and small letters mean a minor chord. Together they're the main chords in lots of songs. Song in a minor key? Choose minor: the green box is your key, and the numerals still count from the red.</div>
+          <div class="note">I, IV, V and vi are Roman numerals for 1, 4, 5 and 6, and small letters mean a minor chord. Together they're the main chords in lots of songs. Song in a minor key? Choose minor: the blue box is your key, and the numerals still count from the red.</div>
           <div class="note" id="sharpNote"></div>
         </div>
       </div>
@@ -752,17 +756,18 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     // strips
     sliderRow.classList.toggle("dragging", !animate);
     placeSlider(snapOffset());
-    // In a minor key the green (vi) sits on the key's note, as the sheets say, so the red (I) is 3 boxes up
-    // and the numerals count from it. The readout starts from the green: the key's own chord comes first.
+    // In a minor key the blue (vi) sits on the key's note, as the sheets say, so the red (I) is 3 boxes up
+    // and the numerals count from it. The readout starts from the blue: the key's own chord comes first.
     const rel = minor ? mod(from + 3) : from, relTo = mod(rel + shift);
     const tones = mainChords(rel);
     const order = minor ? [3, 1, 0, 2] : [0, 1, 2, 3];
     const six = tones[3], sixTo = mod(six + shift);
-    baseCells.forEach((c, i) => c.classList.toggle("hi", tones.slice(1, 3).includes(i)));                       // IV and V: yellow
-    sliderCells.forEach((c, j) => c.classList.toggle("hi", tones.slice(1, 3).map(t => mod(t + shift)).includes(j % 12)));
+    const four = tones[1], five = tones[2];
+    baseCells.forEach((c, i) => { c.classList.toggle("hi", i === four); c.classList.toggle("five", i === five); });   // IV yellow, V green
+    sliderCells.forEach((c, j) => { c.classList.toggle("hi", j % 12 === mod(four + shift)); c.classList.toggle("five", j % 12 === mod(five + shift)); });
     baseCells.forEach((c, i) => c.classList.toggle("root", i === rel));           // I: red, as on the add-ons
     sliderCells.forEach((c, j) => c.classList.toggle("root", j % 12 === relTo));
-    baseCells.forEach((c, i) => c.classList.toggle("six", i === six));            // vi: green
+    baseCells.forEach((c, i) => c.classList.toggle("six", i === six));            // vi: blue
     sliderCells.forEach((c, j) => c.classList.toggle("six", j % 12 === sixTo));
 
     // wheel: outer note i sits at angle i*30; inner note j must sit next to outer note j-shift
@@ -773,12 +778,13 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     inner.style.transform = "rotate(" + innerRot + "deg)";
     outerPaths.forEach((p, i) => p.setAttribute("fill", tones.includes(i) ? "#FFD84D" : (NOTES[i].includes("#") ? "#E6DCC6" : "#FFFFFF")));
     innerPaths.forEach((p, j) => p.setAttribute("fill", tones.map(t => mod(t + shift)).includes(j) ? "#FFD84D" : (NOTES[j].includes("#") ? "#E6DCC6" : "#FFFFFF")));
-    [[outerPaths, rel, six], [innerPaths, relTo, sixTo]].forEach(([paths, root, vi]) => paths.forEach((p, i) => {   // I: red, vi: green, with white letters
+    [[outerPaths, rel, 0], [innerPaths, relTo, shift]].forEach(([paths, root, sh]) => paths.forEach((p, i) => {   // I red with white letters, V green, vi blue
       if (i === root) p.setAttribute("fill", "#C0392B");
-      if (i === vi) p.setAttribute("fill", "#3E9B4F");
+      if (i === mod(five + sh)) p.setAttribute("fill", "#63CF8F");
+      if (i === mod(six + sh)) p.setAttribute("fill", "#3D95EE");
       const tx = p.nextSibling;
-      tx.setAttribute("fill", i === root || i === vi ? "#FFFFFF" : "#2B2118");
-      tx.classList.toggle("onred", i === root || i === vi);
+      tx.setAttribute("fill", i === root ? "#FFFFFF" : "#2B2118");
+      tx.classList.toggle("onred", i === root);
     }));
 
     // readout
@@ -789,7 +795,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       : "From " + keyName(from) + " to " + keyName(to) + ": up " + shift + (shift === 1 ? " box" : " boxes") + " (or down " + down + ")";
     // in a minor key the numerals count from the related major, so the label names it (A minor: "numbered from C major")
     const mainLabel = minor ? "Main chords (numbered from " + spell(rel, fF) + " major):" : "Main chords:";
-    $("maps").innerHTML = "<span class='note' style='align-self:center'>" + mainLabel + "</span>" + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return "<span><i class='deg" + (k === 0 ? " root" : k === 3 ? " six" : "") + "' aria-hidden='true'>" + ["I", "IV", "V", "vi"][k] + ".</i>" + spell(t, fF) + q + " becomes <b>" + spell(mod(t + shift), tF) + q + "</b></span>"; }).join("");
+    $("maps").innerHTML = "<span class='note' style='align-self:center'>" + mainLabel + "</span>" + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return "<span><i class='deg " + ["root", "four", "five", "six"][k] + "' aria-hidden='true'>" + ["I", "IV", "V", "vi"][k] + ".</i>" + spell(t, fF) + q + " becomes <b>" + spell(mod(t + shift), tF) + q + "</b></span>"; }).join("");
     // major: iii, ii and V7; minor: the key's own iv, v and V7 (Dm, Em and E7 in Am), the chords older
     // minor-key songs lean on. Counted from the key's note; the main chords are shown above.
     const base = minor ? from : rel;
