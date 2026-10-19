@@ -16,11 +16,11 @@ This repository holds the files for that website.
 | [Pocket](slide-a-key_musical_transposer_pocket_edition.pdf) | A spinning disk on a base card, joined with a brass paper fastener. |
 | [Sleeve](slide-a-key_musical_transposer_sleeve_edition.pdf) | The slider runs inside a folded paper sleeve, and the notes show through a window. |
 
-Optional for the Classic Edition: the [Chord Finder Classic](slide-a-key_musical_transposer_chord_finder_classic.pdf) hooks over the top edge and marks the three main chords (I, IV and V) in any key.
+Optional for the Classic Edition: the [Chord Finder Classic](slide-a-key_musical_transposer_chord_finder_classic.pdf) hooks over the top edge and marks the main chords (I, IV, V and vi) in any key.
 
-Optional for the Pocket Edition: the [Chord Finder Pocket](slide-a-key_musical_transposer_chord_finder_pocket.pdf) turns on top of the wheel and marks the three main chords (I, IV and V) in any key.
+Optional for the Pocket Edition: the [Chord Finder Pocket](slide-a-key_musical_transposer_chord_finder_pocket.pdf) turns on top of the wheel and marks the main chords (I, IV, V and vi) in any key.
 
-Optional for the Sleeve Edition: the [Chord Finder Sleeve](slide-a-key_musical_transposer_chord_finder_sleeve.pdf) slips over the Sleeve and marks the three main chords (I, IV and V) in any key.
+Optional for the Sleeve Edition: the [Chord Finder Sleeve](slide-a-key_musical_transposer_chord_finder_sleeve.pdf) slips over the Sleeve and marks the main chords (I, IV, V and vi) in any key.
 
 Print at **100% scale**, not "fit to page", so everything comes out full size. The sheets are US Letter size but print fine on A4. Assembly instructions are on each sheet.
 

@@ -30,6 +30,7 @@
   --ink: #2B2118;
   --red: #C0392B;
   --yellow: #FFD84D;
+  --green: #3E9B4F;
   --gold: #D4A62A;
   --gold-d: #8C6A12;
   --shade: #E6DCC6;
@@ -169,7 +170,8 @@ select {
 .flat { font-family: var(--music); font-size: 1.2em; font-weight: 400; -webkit-text-stroke: .3px currentColor; }
 svg .flat { stroke: #2B2118; stroke-width: .3px; }   /* the music font's flat is thin; a hairline outline matches the letters */
 .cell.hi { background: var(--yellow); }
-.cell.root { background: var(--red); color: #fff; }   /* I: red, IV and V yellow */
+.cell.root { background: var(--red); color: #fff; }   /* I: red, IV and V yellow, vi green */
+.cell.six { background: var(--green); color: #fff; }
 svg text.onred .flat { stroke: #fff; }
 .cutline { border-top: 2px dashed var(--muted); position: relative; height: 0; margin: 2px 0; width: calc(var(--box) * 12 - 16.5px); max-width: 100%; }
 
@@ -178,8 +180,9 @@ svg text.onred .flat { stroke: #fff; }
 .maps { display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 17px; }
 .maps span b { color: var(--red); font-weight: 600; }
 .maps .note { font-family: var(--body); }
-.maps .deg { font-family: var(--display); font-style: normal; font-size: 15.5px; color: var(--muted); margin-right: 6px; }   /* I, IV, V: sized by eye to sit level with the chord letters */
+.maps .deg { font-family: var(--display); font-style: normal; font-size: 15.5px; color: var(--muted); margin-right: 6px; }   /* I, IV, V, vi: sized by eye to sit level with the chord letters */
 .maps .deg.root { color: var(--red); }   /* I in red, like its box on the strips and the wheel */
+.maps .deg.six { color: var(--green); }   /* vi in green, likewise */
 .chords { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   border: 1.5px solid var(--ink);
@@ -315,7 +318,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       ],
       "teaches": [
         "Transposing notes and chords to another key",
-        "The I, IV and V chords in any key"
+        "The I, IV, V and vi chords in any key"
       ],
       "keywords": "transpose, transposer, music transposer, chord transposer, transpose chords, change key, transposition chart, printable, capo, guitar, ukulele, piano, singing, transposing instruments, saxophone, trumpet, clarinet",
       "audience": [
@@ -376,21 +379,21 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         {
           "@type": "DigitalDocument",
           "name": "Slide-a-Key Chord Finder Classic (optional add-on for the Classic Edition)",
-          "description": "Hooks over the top edge and marks the three main chords (I, IV and V) in any key.",
+          "description": "Hooks over the top edge and marks the main chords (I, IV, V and vi) in any key.",
           "url": "https://slideakey.com/slide-a-key_musical_transposer_chord_finder_classic.pdf",
           "encodingFormat": "application/pdf"
         },
         {
           "@type": "DigitalDocument",
           "name": "Slide-a-Key Chord Finder Sleeve (optional add-on for the Sleeve Edition)",
-          "description": "Slips over the Sleeve and marks the three main chords (I, IV and V) in any key.",
+          "description": "Slips over the Sleeve and marks the main chords (I, IV, V and vi) in any key.",
           "url": "https://slideakey.com/slide-a-key_musical_transposer_chord_finder_sleeve.pdf",
           "encodingFormat": "application/pdf"
         },
         {
           "@type": "DigitalDocument",
           "name": "Slide-a-Key Chord Finder Pocket (optional add-on for the Pocket Edition)",
-          "description": "Turns on top of the wheel and marks the three main chords (I, IV and V) in any key.",
+          "description": "Turns on top of the wheel and marks the main chords (I, IV, V and vi) in any key.",
           "url": "https://slideakey.com/slide-a-key_musical_transposer_chord_finder_pocket.pdf",
           "encodingFormat": "application/pdf"
         },
@@ -480,7 +483,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
           <!-- hidden: one sentence read aloud by screen readers when the key settles -->
           <div class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></div>
           <div class="chords" id="chords"></div>
-          <div class="note">I, IV and V are Roman numerals for 1, 4 and 5. Together they're the main chords in lots of songs.</div>
+          <div class="note">I, IV, V and vi are Roman numerals for 1, 4, 5 and 6, and small letters mean a minor chord. Together they're the main chords in lots of songs. Song in a minor key, like Am? Set it so the green box sits on the key's note.</div>
           <div class="note" id="sharpNote"></div>
         </div>
       </div>
@@ -510,7 +513,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
           <dt>Best for</dt><dd>Staying lined up while you work</dd>
         </dl>
         <a class="btn" href="slide-a-key_musical_transposer_classic_edition.pdf" data-file="slide-a-key_musical_transposer_classic_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Classic Edition (opens in a new tab)</span></a>
-        <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_chord_finder_classic.pdf" data-file="slide-a-key_musical_transposer_chord_finder_classic.pdf" target="_blank" rel="noopener">Chord Finder Classic<span class="sr-only"> for the Classic Edition (PDF, opens in a new tab)</span></a> hooks over the top edge and marks the three main chords (I, IV and V) in any key. It's in the <a href="slide-a-key-cricut-kit.zip" data-file="slide-a-key-cricut-kit.zip">Cricut&nbsp;cut&nbsp;files<span class="sr-only"> (zip, for Print Then Cut)</span></a> too.</p>
+        <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_chord_finder_classic.pdf" data-file="slide-a-key_musical_transposer_chord_finder_classic.pdf" target="_blank" rel="noopener">Chord Finder Classic<span class="sr-only"> for the Classic Edition (PDF, opens in a new tab)</span></a> hooks over the top edge and marks the main chords (I, IV, V and vi) in any key. It's in the <a href="slide-a-key-cricut-kit.zip" data-file="slide-a-key-cricut-kit.zip">Cricut&nbsp;cut&nbsp;files<span class="sr-only"> (zip, for Print Then Cut)</span></a> too.</p>
       </article>
       <article class="ed">
         <svg viewBox="0 0 300 200" aria-hidden="true" id="art-sleeve"></svg>
@@ -523,7 +526,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         </dl>
         <a class="btn" href="slide-a-key_musical_transposer_sleeve_edition.pdf" data-file="slide-a-key_musical_transposer_sleeve_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Sleeve Edition (opens in a new tab)</span></a>
         <div class="cut-notes">
-          <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_chord_finder_sleeve.pdf" data-file="slide-a-key_musical_transposer_chord_finder_sleeve.pdf" target="_blank" rel="noopener">Chord Finder Sleeve<span class="sr-only"> for the Sleeve Edition (PDF, opens in a new tab)</span></a> slips over the Sleeve and marks the three main chords (I, IV and V) in any key.</p>
+          <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_chord_finder_sleeve.pdf" data-file="slide-a-key_musical_transposer_chord_finder_sleeve.pdf" target="_blank" rel="noopener">Chord Finder Sleeve<span class="sr-only"> for the Sleeve Edition (PDF, opens in a new tab)</span></a> slips over the Sleeve and marks the main chords (I, IV, V and vi) in any key.</p>
           <p class="cut-note">Have a Cricut? Let it do the cutting with the <a href="slide-a-key-cricut-kit.zip" data-file="slide-a-key-cricut-kit.zip">Cricut cut files<span class="sr-only"> for the Pocket and Sleeve Editions</span></a> (zip, for Print Then Cut).</p>
         </div>
       </article>
@@ -538,7 +541,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         </dl>
         <a class="btn" href="slide-a-key_musical_transposer_pocket_edition.pdf" data-file="slide-a-key_musical_transposer_pocket_edition.pdf" target="_blank" rel="noopener">Download PDF<span class="sr-only"> of the Pocket Edition (opens in a new tab)</span></a>
         <div class="cut-notes">
-          <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_chord_finder_pocket.pdf" data-file="slide-a-key_musical_transposer_chord_finder_pocket.pdf" target="_blank" rel="noopener">Chord Finder Pocket<span class="sr-only"> for the Pocket Edition (PDF, opens in a new tab)</span></a> turns on top of the wheel and marks the three main chords (I, IV and V) in any key.</p>
+          <p class="cut-note">Optional add-on: the <a href="slide-a-key_musical_transposer_chord_finder_pocket.pdf" data-file="slide-a-key_musical_transposer_chord_finder_pocket.pdf" target="_blank" rel="noopener">Chord Finder Pocket<span class="sr-only"> for the Pocket Edition (PDF, opens in a new tab)</span></a> turns on top of the wheel and marks the main chords (I, IV, V and vi) in any key.</p>
           <p class="cut-note">Have a Cricut? Let it do the cutting with the <a href="slide-a-key-cricut-kit.zip" data-file="slide-a-key-cricut-kit.zip">Cricut cut files<span class="sr-only"> for the Pocket and Sleeve Editions</span></a> (zip, for Print Then Cut).</p>
         </div>
       </article>
@@ -563,7 +566,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <p>Not "fit to page," so everything comes out full size. On the Classic and Sleeve sheets, one full note strip measures exactly 178 mm (7 inches). The sheets are US Letter size but print fine on A4.</p>
       </div>
     </div>
-    <p>The assembly steps are printed on each sheet. Once it's built, try C up to D: the three main chords, C, F and G, become D, G and A. It works for other chords too: Am becomes Bm, and Em becomes F#m. Use it for a while and you may start to notice a pattern or two.</p>
+    <p>The assembly steps are printed on each sheet. Once it's built, try C up to D: the main chords, C, F, G and Am, become D, G, A and Bm. It works for other chords too: Em becomes F#m, and G7 becomes A7. Use it for a while and you may start to notice a pattern or two.</p>
   </section>
 
   <section id="teachers" aria-labelledby="teach-h">
@@ -723,7 +726,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     toSel.add(new Option(label, i));
   });
 
-  const mainChords = (root) => [root, mod(root + 5), mod(root + 7)];   // roots of the I, IV and V chords
+  const mainChords = (root) => [root, mod(root + 5), mod(root + 7), mod(root + 9)];   // roots of the I, IV, V and vi chords
 
   function render(animate, speak) {
     const to = mod(from + shift);
@@ -734,10 +737,13 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     sliderRow.classList.toggle("dragging", !animate);
     placeSlider(snapOffset());
     const tones = mainChords(from);
-    baseCells.forEach((c, i) => c.classList.toggle("hi", tones.includes(i)));
-    sliderCells.forEach((c, j) => c.classList.toggle("hi", tones.map(t => mod(t + shift)).includes(j % 12)));
+    const six = tones[3], sixTo = mod(six + shift);
+    baseCells.forEach((c, i) => c.classList.toggle("hi", tones.slice(1, 3).includes(i)));                       // IV and V: yellow
+    sliderCells.forEach((c, j) => c.classList.toggle("hi", tones.slice(1, 3).map(t => mod(t + shift)).includes(j % 12)));
     baseCells.forEach((c, i) => c.classList.toggle("root", i === from));          // I: red, as on the add-ons
     sliderCells.forEach((c, j) => c.classList.toggle("root", j % 12 === to));
+    baseCells.forEach((c, i) => c.classList.toggle("six", i === six));            // vi: green
+    sliderCells.forEach((c, j) => c.classList.toggle("six", j % 12 === sixTo));
 
     // wheel: outer note i sits at angle i*30; inner note j must sit next to outer note j-shift
     // turn the short way round: pick the equivalent angle nearest the current one
@@ -747,11 +753,12 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     inner.style.transform = "rotate(" + innerRot + "deg)";
     outerPaths.forEach((p, i) => p.setAttribute("fill", tones.includes(i) ? "#FFD84D" : (NOTES[i].includes("#") ? "#E6DCC6" : "#FFFFFF")));
     innerPaths.forEach((p, j) => p.setAttribute("fill", tones.map(t => mod(t + shift)).includes(j) ? "#FFD84D" : (NOTES[j].includes("#") ? "#E6DCC6" : "#FFFFFF")));
-    [[outerPaths, from], [innerPaths, to]].forEach(([paths, root]) => paths.forEach((p, i) => {   // I: red, with white letters
+    [[outerPaths, from, six], [innerPaths, to, sixTo]].forEach(([paths, root, vi]) => paths.forEach((p, i) => {   // I: red, vi: green, with white letters
       if (i === root) p.setAttribute("fill", "#C0392B");
+      if (i === vi) p.setAttribute("fill", "#3E9B4F");
       const tx = p.nextSibling;
-      tx.setAttribute("fill", i === root ? "#FFFFFF" : "#2B2118");
-      tx.classList.toggle("onred", i === root);
+      tx.setAttribute("fill", i === root || i === vi ? "#FFFFFF" : "#2B2118");
+      tx.classList.toggle("onred", i === root || i === vi);
     }));
 
     // readout
@@ -759,8 +766,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     $("moveText").textContent = shift === 0
       ? "From " + NOTES[from] + " to " + NOTES[to] + ": no change. Slide it!"
       : "From " + NOTES[from] + " to " + NOTES[to] + ": up " + shift + (shift === 1 ? " box" : " boxes") + " (or down " + down + ")";
-    $("maps").innerHTML = "<span class='note' style='align-self:center'>Main chords:</span>" + tones.map((t, k) => "<span><i class='deg" + (k === 0 ? " root" : "") + "' aria-hidden='true'>" + ["I", "IV", "V"][k] + ".</i>" + NOTES[t] + " becomes <b>" + NOTES[mod(t + shift)] + "</b></span>").join("");
-    const chordSet = [[9, "m"], [4, "m"], [2, "m"], [7, "7"]];   // vi, iii, ii and V7: the main chords are shown above
+    $("maps").innerHTML = "<span class='note' style='align-self:center'>Main chords:</span>" + tones.map((t, k) => { const q = k === 3 ? "m" : ""; return "<span><i class='deg" + (k === 0 ? " root" : k === 3 ? " six" : "") + "' aria-hidden='true'>" + ["I", "IV", "V", "vi"][k] + ".</i>" + NOTES[t] + q + " becomes <b>" + NOTES[mod(t + shift)] + q + "</b></span>"; }).join("");
+    const chordSet = [[4, "m"], [2, "m"], [7, "7"]];   // iii, ii and V7: the main chords are shown above
     $("chords").innerHTML = "<span class='note' style='align-self:center'>Other chords:</span>" + chordSet.map(([iv, q]) => {
       const a = NOTES[mod(from + iv)] + q, b = NOTES[mod(from + iv + shift)] + q;
       return "<span class='chip'>" + a + " &rarr; <b>" + b + "</b></span>";
@@ -773,7 +780,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     if (speak) {
       const said = (shift === 0 ? "From " + NOTES[from] + " to " + NOTES[to] + ": no change."
         : "From " + NOTES[from] + " to " + NOTES[to] + ": up " + shift + (shift === 1 ? " box. " : " boxes. ")
-          + tones.map(t => NOTES[t] + " becomes " + NOTES[mod(t + shift)]).join(", ") + ".");
+          + tones.map((t, k) => { const q = k === 3 ? "m" : ""; return NOTES[t] + q + " becomes " + NOTES[mod(t + shift)] + q; }).join(", ") + ".");
       const live = $("announce");
       live.textContent = "";
       setTimeout(() => { live.textContent = said; }, 50);
@@ -968,7 +975,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   render(true);
 
   /* ---------- edition art ---------- */
-  const C = { ink: "#2B2118", red: "#C0392B", yel: "#FFD84D", shade: "#E6DCC6", white: "#FFFFFF",
+  const C = { ink: "#2B2118", red: "#C0392B", yel: "#FFD84D", green: "#3E9B4F", shade: "#E6DCC6", white: "#FFFFFF",
               sheet: "#FFFDF6", paper: "#FBF6EA", muted: "#6E5E4A", gold: "#D4A62A", goldD: "#8C6A12" };
   function el(parent, tag, attrs) {
     const e = document.createElementNS(SVGNS, tag);
@@ -982,7 +989,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     t.textContent = str;
     return t;
   }
-  // The pictures mark I, IV and V as the add-ons do, on boxes left as printed: the Chord Finder Classic's
+  // The pictures mark I, IV, V and vi as the add-ons do, on boxes left as printed: the Chord Finder Classic's
   // and the Chord Finder Sleeve's coloured bands and caps (artBands), and the Chord Finder Pocket's wedges.
   function artStrip(parent, x, y, n, start, w, h, hi) {
     for (let k = 0; k < n; k++) {
@@ -1139,12 +1146,12 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     artRing(svg, 150, 98, 70, 92, false, 0, [], 11);
     el(svg, "circle", { cx: 150, cy: 98, r: 68, fill: C.white, stroke: C.ink, "stroke-width": 1 });
     artRing(svg, 150, 98, 45, 66, false, 2, [], 10);
-    // the Chord Finder Pocket's marks, to scale: a wedge just inside the inner ring at D (I), G (IV) and A (V)
-    [[0, "I", C.red], [5, "IV", C.yel], [7, "V", C.yel]].forEach(([k, lab, col]) => {
+    // the Chord Finder Pocket's marks, to scale: a wedge just inside the inner ring at D (I), G (IV), A (V) and B (vi)
+    [[0, "I", C.red], [5, "IV", C.yel], [7, "V", C.yel], [9, "vi", C.green]].forEach(([k, lab, col]) => {
       const a = k * Math.PI / 6, rm = 39.5;
       el(svg, "path", { d: sector(34.5, 44.5, a), fill: col, stroke: C.ink, "stroke-width": 0.8, transform: "translate(150 98)" });
       const t = el(svg, "text", { "text-anchor": "middle", "dominant-baseline": "central", "font-size": 6.5,
-        "font-family": "Rye, serif", fill: lab === "I" ? C.white : C.ink,
+        "font-family": "Rye, serif", fill: col === C.yel ? C.ink : C.white,
         transform: `translate(${(150 + rm * Math.sin(a)).toFixed(2)},${(98 - rm * Math.cos(a)).toFixed(2)}) rotate(${k * 30})` });
       t.textContent = lab;
     });
