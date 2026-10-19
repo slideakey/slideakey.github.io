@@ -680,10 +680,18 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   const baseCells = [...baseRow.children], sliderCells = [...sliderRow.children];
 
   function boxWidth() { return baseCells[0].getBoundingClientRect().width - 1.5; }
+  // The slider has three rounds of the 12 notes, so each key can sit at three places. sliderK is
+  // where it is now, in boxes; snapping picks the place for the key nearest to that, so it never
+  // slides a whole round to land on the same notes.
+  let sliderK = shift + 12;
   function placeSlider(offsetPx) {
     sliderRow.style.transform = "translateX(" + offsetPx + "px)";
+    sliderK = -offsetPx / boxWidth();
   }
-  function snapOffset() { return -(shift + 12) * boxWidth(); }
+  function placeFor(near) {                  // the box position for the current key nearest to near
+    return [0, 12, 24].map(r => mod(shift) + r).reduce((a, b) => Math.abs(b - near) < Math.abs(a - near) ? b : a);
+  }
+  function snapOffset() { return -placeFor(sliderK) * boxWidth(); }
 
   /* ---------- wheel ---------- */
   const outer = $("outer"), inner = $("inner"), hub = $("hub");
@@ -848,7 +856,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   // a soft note each time the slider or ring moves a box: it plays the key you're moving to,
   // pitched in the octave starting at middle C (only while the visitor drags); when the key settles,
   // its home chord plays instead (see chord, below)
-  let actx = null, soundOn = true, lastClick = 0;
+  let actx = null, soundOn = true, lastClick = 0, tickLater = 0;
   try { if (localStorage.getItem("sak-sound") === "off") soundOn = false; } catch (e) {}
   const soundBtn = $("soundBtn");
   function showSound() { soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false"); soundBtn.classList.toggle("muted", !soundOn); }
@@ -856,7 +864,11 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   function tick(s) {
     if (!soundOn) return;
     const now = performance.now();
-    if (now - lastClick < 40) return;            // no jumble when dragged quickly
+    clearTimeout(tickLater);
+    if (now - lastClick < 40) {                  // no jumble when dragged quickly, but the box it stops on
+      tickLater = setTimeout(() => tick(s), 40 - (now - lastClick));   // is always heard
+      return;
+    }
     lastClick = now;
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
@@ -890,6 +902,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   // A new chord quickly fades out the one before, so rapid key changes don't pile up into a muddy,
   // loud cluster: they sound like a quick run of chords, with only the last one ringing on.
   function chord(key) {
+    clearTimeout(tickLater);                     // a drag note still waiting would come after the chord
     if (!soundOn) return;
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
@@ -916,23 +929,26 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     try { localStorage.setItem("sak-sound", soundOn ? "on" : "off"); } catch (e) {}
     showSound();
     if (soundOn) tick(shift);                    // a sample note when it's switched on
-    else if (actx) { try { hush(ringing.concat(notes)); } catch (e) {} ringing = []; notes = []; }   // off means silence now
+    else if (actx) { clearTimeout(tickLater); try { hush(ringing.concat(notes)); } catch (e) {} ringing = []; notes = []; }   // off means silence now
   });
 
   let dragStartX = 0, dragStartOffset = 0, dragging = false, dragBox = 0;
   sliderRow.addEventListener("pointerdown", (e) => {
     dragging = true;
     dragStartX = e.clientX;
-    dragStartOffset = snapOffset();
-    dragBox = Math.round(dragStartOffset / boxWidth());
     sliderRow.classList.add("dragging");
+    // start from the place for this key nearest the middle (the same notes, so nothing visibly moves),
+    // leaving room to drag at least 6 boxes either way
+    dragStartOffset = -placeFor(12) * boxWidth();
+    placeSlider(dragStartOffset);
+    dragBox = Math.round(dragStartOffset / boxWidth());
     sliderRow.setPointerCapture(e.pointerId);
   });
   sliderRow.addEventListener("pointermove", (e) => {
     if (!dragging) return;
     const w = boxWidth();
     let off = dragStartOffset + (e.clientX - dragStartX);
-    off = Math.max(-23 * w, Math.min(-1 * w, off));
+    off = Math.max(-24 * w, Math.min(0, off));   // the slider's ends
     if (Math.abs(e.clientX - dragStartX) > 4) touched = true;
     placeSlider(off);
     const box = Math.round(off / w);
@@ -942,8 +958,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     if (!dragging) return;
     dragging = false;
     const w = boxWidth();
-    const off = dragStartOffset + (e.clientX - dragStartX);
-    shift = mod(Math.round(-off / w) - 12);
+    const off = Math.max(-24 * w, Math.min(0, dragStartOffset + (e.clientX - dragStartX)));   // as shown, past the ends too
+    shift = mod(Math.round(-off / w));
     sliderRow.classList.remove("dragging");
     render(true, Math.abs(e.clientX - dragStartX) > 4);   // a finger that only scrolled the page says nothing
   }
@@ -952,6 +968,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   sliderRow.addEventListener("pointercancel", () => {
     if (!dragging) return;
     dragging = false;
+    clearTimeout(tickLater);                   // nor a drag note still waiting
     sliderRow.classList.remove("dragging");
     placeSlider(snapOffset());
   });
@@ -1009,6 +1026,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   });
   wheel.addEventListener("pointercancel", () => {   // likewise for the wheel: back to where it was
     if (!spin) return;
+    clearTimeout(tickLater);
     spin = null;
     wheel.classList.remove("spinning");
     inner.style.transform = "rotate(" + innerRot + "deg)";
