@@ -18,12 +18,12 @@ The licence applies to all Slide-a-Key printables and accompanying text:
   * Slide-a-Key Musical Transposer, Classic Edition (PDF)
   * Slide-a-Key Musical Transposer, Pocket Edition (PDF)
   * Slide-a-Key Musical Transposer, Sleeve Edition (PDF)
-  * The Chord Finder Classic, Chord Finder Pocket and Chord Finder Sleeve add-ons (PDF)
+  * The Chord Finder Classic, Chord Finder Pocket, and Chord Finder Sleeve add-ons (PDF)
   * The README and teacher's guide (Markdown and PDF) and this licence file
   * The slideakey.com website page (index.html) and its README
 
 The small build_pdf.py script, which turns the Markdown files into PDFs, is
-not covered by the Creative Commons licence. It's free to use, copy and change
+not covered by the Creative Commons licence. It's free to use, copy, and change
 for any purpose, with no warranty.
 
 In Plain Terms
@@ -32,7 +32,7 @@ In Plain Terms
 You are free to:
 
   * Share: copy and redistribute the material in any medium or format.
-  * Adapt: remix, transform and build upon the material.
+  * Adapt: remix, transform, and build upon the material.
 
 Under these terms:
 
@@ -43,7 +43,7 @@ Under these terms:
     technological measures that restrict others from doing anything the
     licence permits.
 
-So you can print Slide-a-Keys for yourself, your students, your band or your
+So you can print Slide-a-Keys for yourself, your students, your band, or your
 jam night, and pass them around freely. Please don't sell them.
 
 This summary is not the licence itself. If it differs from the full legal text
@@ -69,7 +69,7 @@ rights to the name "Slide-a-Key" as a brand.
 The fonts used are separately licensed by their creators and are not covered
 by this licence:
 
-  * Rye, Patrick Hand and Noto Music: SIL Open Font License
+  * Rye, Patrick Hand, and Noto Music: SIL Open Font License
   * Permanent Marker: Apache License 2.0
   * DejaVu Sans and DejaVu Sans Mono: DejaVu Fonts License
   * FreeSerif: GNU GPL with the font exception
