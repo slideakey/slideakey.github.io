@@ -845,7 +845,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   function setFrom(i) {
     touched = true;
     if (i !== from) { const to = mod(from + shift); from = i; shift = mod(to - from); render(true, true, true); }   // the tapped key's home chord plays
-    else tick(0);
+    else chord(from);                          // already the key: nothing changes, but a tap always answers with its chord
   }
   baseRow.addEventListener("click", (e) => {
     const c = e.target.closest(".cell");
