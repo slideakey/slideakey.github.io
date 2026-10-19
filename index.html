@@ -88,13 +88,13 @@ a:focus-visible, button:focus-visible, select:focus-visible { outline: 3px solid
 .hero .who + .cta-row { margin-top: 20px; }
 @media (max-width: 760px) { .hero .who { margin-top: 14px; } }   /* no coin hanging below the burst here */
 .burst-row { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0; margin-top: 18px; flex-wrap: wrap; }
-.burst { width: min(600px, calc(100% - 124px)); min-width: 260px; height: auto; flex: 0 1 auto; }
+.burst { width: min(526px, calc(100% - 124px)); min-width: 228px; height: auto; flex: 0 1 auto; }   /* the burst drawn tighter round its text, as on the Classic sheet */
 .burst text { font-family: var(--marker); }
 .coin { width: 84px; height: 84px; flex: none; }
 .burst-row > .coin { width: 120px; height: 120px; }
 @media (min-width: 761px) {
   /* tuck the coin against the burst's lower-right points, like a seal, as on the printed sheets */
-  .burst-row > .coin { position: relative; margin-left: -22px; transform: translateY(72px); }
+  .burst-row > .coin { position: relative; margin-left: -14px; transform: translateY(64px); }
 }
 svg text.coin-glyph { font-family: var(--music); }
 .coin text { font-family: var(--music); }
@@ -422,7 +422,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     <div class="sub">Musical Transposer</div>
     <div class="tag">cut it, slide it, play it in any key</div>
     <div class="burst-row">
-      <svg class="burst" viewBox="-274 -148 548 284" role="img" aria-label="No batteries! No app! No subscription! Works in all 12 keys! Scissors not included.">
+      <svg class="burst" viewBox="-240 -133 480 259" role="img" aria-label="No batteries! No app! No subscription! Works in all 12 keys! Scissors not included.">
         <polygon id="burstShadow" fill="#2B2118" transform="translate(6,6)"></polygon>
         <polygon id="burstFill" fill="#FFD84D" stroke="#C0392B" stroke-width="3" stroke-linejoin="round"></polygon>
         <g transform="rotate(-3)">
@@ -631,7 +631,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     }
     return pts.join(" ");
   }
-  const burst = starPoints(262, 128, 24, 7);
+  const burst = starPoints(262 * 0.87, 128 * 0.90, 24, 7);   // a little tighter round the text, as on the Classic sheet
   $("burstShadow").setAttribute("points", burst);
   $("burstFill").setAttribute("points", burst);
 
