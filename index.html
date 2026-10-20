@@ -30,7 +30,7 @@
   --ink: #2B2118;
   --red: #C0392B;
   --yellow: #FFD84D;
-  --tonic: #2E7D4F;   /* I: a darker green, with white letters: home, where songs come to rest */
+  --tonic: #21633D;   /* I: a darker green, with white letters: home, where songs come to rest */
   --dominant: #F29A92;   /* V: a pale red, with dark letters: the tension that pushes back home */
   --blue: #7DB9F5;    /* vi, the minor chord */
   --gold: #D4A62A;
@@ -785,7 +785,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     // and the numerals count from it. The readout starts from the blue: the key's own chord comes first.
     const rel = minor ? mod(from + 3) : from, relTo = mod(rel + shift);
     const tones = mainChords(rel);
-    const order = minor ? [3, 1, 0, 2] : [0, 1, 2, 3];
+    const order = minor ? [3, 0, 1, 2] : [0, 1, 2, 3];   // in the order the boxes run, up from the key: vi I IV V in minor
     const six = tones[3], sixTo = mod(six + shift);
     const four = tones[1], five = tones[2];
     baseCells.forEach((c, i) => { c.classList.toggle("hi", i === four); c.classList.toggle("five", i === five); });   // IV yellow, V red
@@ -804,7 +804,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     outerPaths.forEach((p, i) => p.setAttribute("fill", tones.includes(i) ? "#FFD84D" : (NOTES[i].includes("#") ? "#E6DCC6" : "#FFFFFF")));
     innerPaths.forEach((p, j) => p.setAttribute("fill", tones.map(t => mod(t + shift)).includes(j) ? "#FFD84D" : (NOTES[j].includes("#") ? "#E6DCC6" : "#FFFFFF")));
     [[outerPaths, rel, 0], [innerPaths, relTo, shift]].forEach(([paths, root, sh]) => paths.forEach((p, i) => {   // I green with white letters, V red, vi blue
-      if (i === root) p.setAttribute("fill", "#2E7D4F");
+      if (i === root) p.setAttribute("fill", "#21633D");
       if (i === mod(five + sh)) p.setAttribute("fill", "#F29A92");
       if (i === mod(six + sh)) p.setAttribute("fill", "#7DB9F5");
       const tx = p.nextSibling;
