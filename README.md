@@ -22,7 +22,7 @@ Optional for the Pocket Edition: the [Chord Finder Pocket](slide-a-key_musical_t
 
 Optional for the Sleeve Edition: the [Chord Finder Sleeve](slide-a-key_musical_transposer_chord_finder_sleeve.pdf) slips over the Sleeve and marks the main chords (I, IV, V, and vi) in any key.
 
-Print at **100% scale**, not "fit to page", so everything comes out full size. The sheets are US Letter size but print fine on A4. Assembly instructions are on each sheet.
+Print at **100% scale**, not "fit to page", so everything comes out full size. Each sheet has a print check at the bottom: a line that measures 50 mm. The sheets are US Letter size but print fine on A4. Assembly instructions are on each sheet.
 
 Have a Cricut? The [Cricut cut files](slide-a-key-cricut-kit.zip) let it cut out the Pocket and Sleeve Editions, and the add-ons, for you, using Print Then Cut.
 
