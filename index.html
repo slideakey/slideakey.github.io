@@ -682,16 +682,31 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   function boxWidth() { return baseCells[0].getBoundingClientRect().width - 1.5; }
   // The slider has three rounds of the 12 notes, so each key can sit at three places. sliderK is
   // where it is now, in boxes; snapping picks the place for the key nearest to that, so it never
-  // slides a whole round to land on the same notes.
+  // slides a whole round to land on the same notes. Only places 0 to 24 fill the window (beyond 24
+  // the slider runs out of notes), and after each glide it moves quietly to the same notes nearest
+  // the middle, so a run of key changes in one direction never walks it off the end.
   let sliderK = shift + 12;
   function placeSlider(offsetPx) {
     sliderRow.style.transform = "translateX(" + offsetPx + "px)";
     sliderK = -offsetPx / boxWidth();
   }
   function placeFor(near) {                  // the box position for the current key nearest to near
-    return [0, 12, 24].map(r => mod(shift) + r).reduce((a, b) => Math.abs(b - near) < Math.abs(a - near) ? b : a);
+    return [0, 12, 24].map(r => mod(shift) + r).filter(k => k <= 24)
+      .reduce((a, b) => Math.abs(b - near) < Math.abs(a - near) ? b : a);
   }
   function snapOffset() { return -placeFor(sliderK) * boxWidth(); }
+  let recentreLater = 0;
+  function recentreSoon() {                  // once the glide has finished: the same notes, nothing visibly moves
+    clearTimeout(recentreLater);
+    recentreLater = setTimeout(() => {
+      const k = placeFor(12);
+      if (dragging || Math.abs(k - sliderK) < 0.01) return;
+      sliderRow.classList.add("dragging");   // no glide
+      placeSlider(-k * boxWidth());
+      void sliderRow.offsetWidth;            // apply it before the glide comes back on
+      sliderRow.classList.remove("dragging");
+    }, 350);
+  }
 
   /* ---------- wheel ---------- */
   const outer = $("outer"), inner = $("inner"), hub = $("hub");
@@ -765,6 +780,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     // strips
     sliderRow.classList.toggle("dragging", !animate);
     placeSlider(snapOffset());
+    recentreSoon();
     // In a minor key the blue (vi) sits on the key's note, as the sheets say, so the green (I) is 3 boxes up
     // and the numerals count from it. The readout starts from the blue: the key's own chord comes first.
     const rel = minor ? mod(from + 3) : from, relTo = mod(rel + shift);
@@ -971,6 +987,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     clearTimeout(tickLater);                   // nor a drag note still waiting
     sliderRow.classList.remove("dragging");
     placeSlider(snapOffset());
+    recentreSoon();
   });
   let lastWidth = window.innerWidth;           // phones fire "resize" as the address bar hides while scrolling:
   window.addEventListener("resize", () => {    // only a change of width moves anything
