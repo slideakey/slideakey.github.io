@@ -152,6 +152,11 @@ select {
   overflow: hidden;
   position: relative;
 }
+.slider-window::after {                    /* the slider's right end: a clean border, like the fixed strip's, where */
+  content: ""; position: absolute;          /* the window would otherwise show a sliver of the next box */
+  top: 0; bottom: 0; right: 0; width: 1.5px;
+  background: var(--ink); pointer-events: none;
+}
 .row { display: flex; width: max-content; }
 .slider-row { cursor: grab; touch-action: pan-y; transition: transform .28s cubic-bezier(.3,.8,.3,1); }
 .slider-row.dragging { cursor: grabbing; transition: none; }
@@ -200,6 +205,12 @@ svg text.onred .flat { stroke: #fff; }
 }
 .chip b { color: var(--red); font-weight: 600; }
 .note { font-size: 16px; color: var(--muted); }
+/* the box that's your key, picked out in its own colour for the mode chosen */
+/* (the colour spreads past the words as a shadow, so the text never moves when it switches) */
+.your-key { border-radius: 3px; white-space: nowrap; transition: background-color .3s, box-shadow .3s, color .3s;   /* one line each, so a rectangle never splits */
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.your-key.on[data-mode="major"] { background: var(--tonic); box-shadow: 0 0 0 .15em var(--tonic); color: #fff; }
+.your-key.on[data-mode="minor"] { background: var(--blue); box-shadow: 0 0 0 .15em var(--blue); color: var(--ink); }
 
 .wheel { width: min(301px, 100%); height: auto; aspect-ratio: 1; display: block; }   /* 15% larger than the 262-unit drawing; shrinks on narrow phones */
 .wheel-wrap { display: grid; justify-items: center; gap: 2px; }
@@ -481,7 +492,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     <div class="demo">
       <div class="strips">
         <div class="strip-label">SLIDER: the key you want &middot; <span class="hint"><svg viewBox="0 0 34 12" aria-hidden="true"><path d="M7 6 H27" stroke="#C0392B" stroke-width="2"/><path d="M1 6 l7 -5 v10 z M33 6 l-7 -5 v10 z" fill="#C0392B"/></svg>drag me</span></div>
-        <div class="window"><div class="row slider-row" id="sliderRow" title="Drag left or right to change key"></div></div>
+        <div class="window slider-window"><div class="row slider-row" id="sliderRow" title="Drag left or right to change key"></div></div>
         <div class="cutline" aria-hidden="true"></div>
         <div class="window"><div class="row" id="baseRow" title="Click a note to pick the key your song is in"></div></div>
         <div class="strip-label">FIXED STRIP: the key you're in &middot; <span class="hint">tap a note</span></div>
@@ -492,7 +503,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
           <!-- hidden: one sentence read aloud by screen readers when the key settles -->
           <div class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></div>
           <div class="chords" id="chords"></div>
-          <div class="note">I, IV, V, and vi are Roman numerals for 1, 4, 5, and 6, and small letters mean a minor chord. Together they're the main chords in lots of songs. Song in a major key? The green box is your key. Song in a minor key? The blue box is your key, and the numerals still count from the green.</div>
+          <div class="note">I, IV, V, and vi are Roman numerals for 1, 4, 5, and 6, and small letters mean a minor chord. Together they're the main chords in lots of songs. Song in a <span class="your-key" data-mode="major">major key</span>? The <span class="your-key" data-mode="major">green box</span> is your key. Song in a <span class="your-key" data-mode="minor">minor key</span>? The <span class="your-key" data-mode="minor">blue box</span> is your key, and the numerals still count from the green.</div>
           <div class="note" id="sharpNote"></div>
         </div>
       </div>
@@ -586,7 +597,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
       <div><h3>They discover it</h3><p>Hold back the explanation. A student who notices every note moved two boxes has found the idea of an interval for themselves.</p></div>
       <div><h3>They keep it</h3><p>Let students sign it, colour in the sharps, and keep it in an instrument case. A tool they reach for next week keeps teaching.</p></div>
     </div>
-    <p>The teacher's guide has a 45-minute lesson, six discovery questions with answers, and ideas for transposing instruments, capos, and singing range.</p>
+    <p>The teacher's guide has a 45-minute lesson, eight discovery questions with answers, and ideas for transposing instruments, capos, and singing range.</p>
     <div><a class="btn" href="TEACHERS_GUIDE.pdf" data-file="TEACHERS_GUIDE.pdf" target="_blank" rel="noopener">Download the teacher's guide<span class="sr-only"> (opens in a new tab)</span></a></div>
   </section>
 
@@ -773,6 +784,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   const mainChords = (root) => [root, mod(root + 5), mod(root + 7), mod(root + 9)];   // roots of the I, IV, V, and vi chords
 
   function render(animate, speak, newHome) {   // newHome: the song's key was just picked, so play its chord
+    document.querySelectorAll(".your-key").forEach(el => el.classList.toggle("on", (el.dataset.mode === "minor") === minor));
     const to = mod(from + shift);
     fromSel.value = from;
     toSel.value = to;
@@ -948,10 +960,10 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     else if (actx) { clearTimeout(tickLater); try { hush(ringing.concat(notes)); } catch (e) {} ringing = []; notes = []; }   // off means silence now
   });
 
-  let dragStartX = 0, dragStartOffset = 0, dragging = false, dragBox = 0;
+  let dragStartX = 0, dragStartY = 0, dragStartOffset = 0, dragging = false, dragBox = 0;
   sliderRow.addEventListener("pointerdown", (e) => {
     dragging = true;
-    dragStartX = e.clientX;
+    dragStartX = e.clientX; dragStartY = e.clientY;
     sliderRow.classList.add("dragging");
     // start from the place for this key nearest the middle (the same notes, so nothing visibly moves),
     // leaving room to drag at least 6 boxes either way
@@ -975,9 +987,14 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     dragging = false;
     const w = boxWidth();
     const off = Math.max(-24 * w, Math.min(0, dragStartOffset + (e.clientX - dragStartX)));   // as shown, past the ends too
-    shift = mod(Math.round(-off / w));
     sliderRow.classList.remove("dragging");
-    render(true, Math.abs(e.clientX - dragStartX) > 4);   // a finger that only scrolled the page says nothing
+    const dx = Math.abs(e.clientX - dragStartX), dy = Math.abs(e.clientY - dragStartY);
+    if (dx > 4) { shift = mod(Math.round(-off / w)); render(true, true); return; }
+    render(true, false);                       // no move along the strip: the key stays as it was, whatever the
+                                               // box size, since only a drag sets it
+    // a tap answers with the chord of the key you want, like the wheel and the fixed strip. A finger that
+    // moved up or down was scrolling the page, so it says nothing
+    if (dy <= 4) { touched = true; chord(mod(from + shift)); }
   }
   sliderRow.addEventListener("pointerup", endDrag);
   // a cancel (the phone taking the finger over to scroll the page) isn't a choice: put the slider back
@@ -1007,7 +1024,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   wheel.addEventListener("pointerdown", (e) => {
     const p = pointerAngle(e);
     if (p.dist > 82) return;                 // the outer ring stays put
-    spin = { last: p.deg, rot: innerRot, note: Math.round(innerRot / 30) };
+    spin = { last: p.deg, rot: innerRot, note: Math.round(innerRot / 30), turned: 0 };
     wheel.classList.add("spinning");
     wheel.setPointerCapture(e.pointerId);
     e.preventDefault();
@@ -1020,6 +1037,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     if (d > 180) d -= 360; else if (d < -180) d += 360;
     spin.last = deg;
     spin.rot += d;
+    spin.turned += Math.abs(d);
     inner.style.transform = "rotate(" + spin.rot + "deg)";
     const note = Math.round(spin.rot / 30);
     if (note !== spin.note) { spin.note = note; tick(mod(-note)); }
@@ -1027,10 +1045,12 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   function endSpin() {
     if (!spin) return;
     innerRot = spin.rot;
-    shift = mod(Math.round(-spin.rot / 30));
+    const turned = spin.turned > 3;            // degrees: less than that is a tap, not a turn
+    if (turned) shift = mod(Math.round(-spin.rot / 30));   // only a turn sets the key: a tap keeps it as it was
     spin = null;
     wheel.classList.remove("spinning");
-    render(true, true);
+    if (turned) render(true, true);
+    else { render(true, false); chord(mod(from + shift)); }   // a tap: its chord, but nothing to announce
   }
   wheel.addEventListener("pointerup", endSpin);
   let ringDown = false;                      // a tap on the outer ring, not the end of a turn of the inner one
