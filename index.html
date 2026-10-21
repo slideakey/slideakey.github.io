@@ -187,7 +187,7 @@ svg text.onred .flat { stroke: #fff; }
 .maps .note { font-family: var(--body); }
 .maps .deg { font-family: var(--display); font-style: normal; font-size: 15.5px; color: var(--muted); margin-right: 6px; }   /* I, IV, V, vi: sized by eye to sit level with the chord letters */
 .maps .deg.root { color: var(--tonic); }   /* I in green, like its box on the strips and the wheel */
-.maps .deg.four { color: #856607; }   /* IV, V and vi in darker shades of their colours, readable on the paper */
+.maps .deg.four { color: #856607; }   /* IV, V, and vi in darker shades of their colours, readable on the paper */
 .maps .deg.five { color: #C0392B; }
 .maps .deg.six { color: #276AAD; }
 .chords { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -770,7 +770,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   }
   fillMenus();
 
-  const mainChords = (root) => [root, mod(root + 5), mod(root + 7), mod(root + 9)];   // roots of the I, IV, V and vi chords
+  const mainChords = (root) => [root, mod(root + 5), mod(root + 7), mod(root + 9)];   // roots of the I, IV, V, and vi chords
 
   function render(animate, speak, newHome) {   // newHome: the song's key was just picked, so play its chord
     const to = mod(from + shift);
@@ -821,7 +821,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     // in a minor key the numerals count from the related major, so the label names it (A minor: "numbered from C major")
     const mainLabel = minor ? "Main chords (numbered from " + spell(rel, fF) + " major):" : "Main chords:";
     $("maps").innerHTML = "<span class='note' style='align-self:center'>" + mainLabel + "</span>" + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return "<span><i class='deg " + ["root", "four", "five", "six"][k] + "' aria-hidden='true'>" + ["I", "IV", "V", "vi"][k] + ".</i>" + spell(t, fF) + q + " becomes <b>" + spell(mod(t + shift), tF) + q + "</b></span>"; }).join("");
-    // major: iii, ii and V7; minor: the key's own iv, v and V7 (Dm, Em and E7 in Am), the chords older
+    // major: iii, ii, and V7; minor: the key's own iv, v, and V7 (Dm, Em, and E7 in Am), the chords older
     // minor-key songs lean on. Counted from the key's note; the main chords are shown above.
     const base = minor ? from : rel;
     const chordSet = minor ? [[5, "m"], [7, "m"], [7, "7"]] : [[4, "m"], [2, "m"], [7, "7"]];
