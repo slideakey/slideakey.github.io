@@ -476,11 +476,11 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     <div class="controls">
       <span class="keypick">
         <label for="fromKey">Song is in</label>
-        <select id="fromKey"></select>
-        <select id="keyType" aria-label="Major or minor key"><option value="major">major</option><option value="minor">minor</option></select>
+        <select id="fromKey" autocomplete="off"></select>
+        <select id="keyType" aria-label="Major or minor key" autocomplete="off"><option value="major">major</option><option value="minor">minor</option></select>
       </span>
       <label for="toKey">Move it to
-        <select id="toKey"></select>
+        <select id="toKey" autocomplete="off"></select>
       </label>
       <span>
         <button class="nudge" id="down" type="button" aria-label="Slide one box left" title="Slide one box left">&#x25C0;</button>
@@ -788,6 +788,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const to = mod(from + shift);
     fromSel.value = from;
     toSel.value = to;
+    $("keyType").value = minor ? "minor" : "major";   // the menus always say what the page plays
 
     // strips
     sliderRow.classList.toggle("dragging", !animate);
@@ -1109,6 +1110,9 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   })();
 
   render(true);
+  // a browser can bring a menu back as it was left (after Back, or a reload) while the page starts afresh:
+  // whenever the page is shown, the menus are set to what it's really playing
+  window.addEventListener("pageshow", () => render(false));
 
   /* ---------- edition art ---------- */
   const C = { ink: "#2B2118", red: "#C0392B", yel: "#FFD84D", shade: "#E6DCC6", white: "#FFFFFF",
