@@ -12,21 +12,21 @@ This repository holds the files for that website.
 
 | Edition | How it works |
 |---|---|
-| [Classic](slide-a-key_musical_transposer_classic_edition.pdf) | Fold the slider over the top edge of the page so it hooks on and slides along it. |
-| [Pocket](slide-a-key_musical_transposer_pocket_edition.pdf) | A spinning disk on a base card, joined with a brass paper fastener. |
-| [Sleeve](slide-a-key_musical_transposer_sleeve_edition.pdf) | The slider runs inside a folded paper sleeve, and the notes show through a window. |
+| [Classic](slide-a-key-classic-transposer.pdf) | Fold the slider over the top edge of the page so it hooks on and slides along it. |
+| [Pocket](slide-a-key-pocket-transposer.pdf) | A spinning disk on a base card, joined with a brass paper fastener. |
+| [Sleeve](slide-a-key-sleeve-transposer.pdf) | The slider runs inside a folded paper sleeve, and the notes show through a window. |
 
-Optional for the Classic Edition: the [Chord Finder Classic](slide-a-key_musical_transposer_chord_finder_classic.pdf) hooks over the top edge and marks the main chords (I, IV, V, and vi) in any key.
+Optional for the Classic Edition: the [Chord Family Classic](slide-a-key-classic-chord-family-add-on.pdf) hooks over the top edge and marks the main chords (I, IV, V, and vi) in any key.
 
-Optional for the Pocket Edition: the [Chord Finder Pocket](slide-a-key_musical_transposer_chord_finder_pocket.pdf) turns on top of the wheel and marks the main chords (I, IV, V, and vi) in any key.
+Optional for the Pocket Edition: the [Chord Family Pocket](slide-a-key-pocket-chord-family-add-on.pdf) turns on top of the wheel and marks the main chords (I, IV, V, and vi) in any key.
 
-Optional for the Sleeve Edition: the [Chord Finder Sleeve](slide-a-key_musical_transposer_chord_finder_sleeve.pdf) slips over the Sleeve and marks the main chords (I, IV, V, and vi) in any key.
+Optional for the Sleeve Edition: the [Chord Family Sleeve](slide-a-key-sleeve-chord-family-add-on.pdf) slips over the Sleeve and marks the main chords (I, IV, V, and vi) in any key.
 
 Print at **100% scale**, not "fit to page", so everything comes out full size. Each sheet has a print check at the bottom: a line that measures 50 mm. The sheets are US Letter size but print fine on A4. Assembly instructions are on each sheet.
 
 Have a Cricut? The [Cricut cut files](slide-a-key-cricut-kit.zip) let it cut out the Pocket and Sleeve Editions, and the add-ons, for you, using Print Then Cut.
 
-Teachers: the [Teacher's Guide](TEACHERS_GUIDE.pdf) has a ready-to-use lesson and classroom ideas.
+Teachers: the [Teacher's Guide](slide-a-key-teachers-guide.pdf) has a ready-to-use lesson and classroom ideas.
 
 ## Free to Print and Share
 
