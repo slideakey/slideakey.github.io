@@ -2,7 +2,7 @@
 
 **No batteries! No app! No subscription!**
 
-Slide-a-Key is a free, printable paper tool for moving notes, melodies, and chord charts from one key to another. Line up the key you're in with the key you want, then read off the matching notes. It works in all 12 keys.
+Slide-a-Key is a free, printable papercraft transposer for moving notes, melodies, and chord charts from one key to another. Line up the key you're in with the key you want, then read off the matching notes. It works in all 12 keys.
 
 **Visit the website: [www.slideakey.com](https://www.slideakey.com)**. You can try it on screen there before you print.
 
