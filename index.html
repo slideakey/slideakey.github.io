@@ -142,6 +142,8 @@ select {
 .sound-toggle:hover { background: var(--row); }
 .sound-toggle .spk { width: 20px; height: 20px; vertical-align: -5px; margin-left: 0; }
 .sound-toggle .spk-x, .sound-toggle.muted .spk-waves { display: none; }
+.keystart { flex-basis: 100%; cursor: pointer; }   /* its own line, under the menus */
+.keystart input { width: 18px; height: 18px; margin: 0; accent-color: var(--tonic); cursor: pointer; }
 .sound-toggle.muted .spk-x { display: inline; }
 
 .strips { display: grid; gap: 6px; min-width: 0; }
@@ -160,6 +162,8 @@ select {
 .row { display: flex; width: max-content; }
 .slider-row { cursor: grab; touch-action: pan-y; transition: transform .28s cubic-bezier(.3,.8,.3,1); }
 .slider-row.dragging { cursor: grabbing; transition: none; }
+.base-row { transition: transform .45s cubic-bezier(.3,.8,.3,1); }   /* moves only with "Keep my key at the start" */
+.base-row.still { transition: none; }
 .cell {
   width: var(--box);
   height: calc(var(--box) * 1.1);
@@ -195,6 +199,11 @@ svg text.onred .flat { stroke: #fff; }
 .maps .deg.four { color: #856607; }   /* IV, V, and vi in darker shades of their colours, readable on the paper */
 .maps .deg.five { color: #C0392B; }
 .maps .deg.six { color: #276AAD; }
+/* when a chord plays, its name lights up for a moment in the home chord's colour: green in a major key, blue in a minor one */
+.maps { --glow: rgba(33, 99, 61, .2); }
+.maps.minor { --glow: rgba(125, 185, 245, .5); }
+.maps .name, .maps b { border-radius: 3px; transition: background-color .9s ease-out, box-shadow .9s ease-out; }
+.maps .lit { background: var(--glow); box-shadow: 0 0 0 .2em var(--glow); transition-duration: .1s; }
 .chords { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   border: 1.5px solid var(--ink);
@@ -223,7 +232,8 @@ svg text.onred .flat { stroke: #fff; }
 .slider-row:hover { filter: drop-shadow(0 3px 2px rgba(43,33,24,.28)); }
 .wheel:hover .inner { filter: drop-shadow(0 2px 2px rgba(43,33,24,.3)); }
 .wheel text { font-family: var(--mono); font-weight: 600; }
-.wheel .inner { transition: transform .45s cubic-bezier(.3,.8,.3,1); transform-origin: 0 0; }
+.wheel .inner, .wheel #outer { transition: transform .45s cubic-bezier(.3,.8,.3,1); transform-origin: 0 0; }
+.wheel #hubCoin { pointer-events: none; }   /* the coin stays upright; grabbing it turns the disk underneath */
 .wheel { touch-action: none; }
 .wheel .inner, .wheel #hub { cursor: grab; }
 /* tap the fixed strip or the outer ring to pick the key you're in */
@@ -291,7 +301,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   .ed svg { grid-row: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .slider-row, .wheel .inner, .btn { transition: none; }
+  .slider-row, .base-row, .wheel .inner, .wheel #outer, .btn, .maps .name, .maps b { transition: none; }
 }
 </style>
 <!-- structured data for search engines: what Slide-a-Key is, and its printable parts -->
@@ -487,6 +497,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <button class="nudge" id="up" type="button" aria-label="Slide one box right" title="Slide one box right">&#x25B6;</button>
       </span>
       <button class="sound-toggle" id="soundBtn" type="button" aria-pressed="true" title="Turn notes on/off">Notes:<svg class="spk" aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="16" height="16"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path class="spk-waves" d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path class="spk-x" d="M11 5.5l4 5M15 5.5l-4 5" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <!-- off by default, as on paper: the fixed strip and outer ring stay where they are -->
+      <label class="keystart"><input type="checkbox" id="keyStart" autocomplete="off"> Keep my key at the start</label>
     </div>
 
     <div class="demo">
@@ -494,7 +506,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <div class="strip-label">SLIDER: the key you want &middot; <span class="hint"><svg viewBox="0 0 34 12" aria-hidden="true"><path d="M7 6 H27" stroke="#C0392B" stroke-width="2"/><path d="M1 6 l7 -5 v10 z M33 6 l-7 -5 v10 z" fill="#C0392B"/></svg>drag me</span></div>
         <div class="window slider-window"><div class="row slider-row" id="sliderRow" title="Drag left or right to change key"></div></div>
         <div class="cutline" aria-hidden="true"></div>
-        <div class="window"><div class="row" id="baseRow" title="Click a note to pick the key your song is in"></div></div>
+        <div class="window"><div class="row base-row" id="baseRow" title="Click a note to pick the key your song is in"></div></div>
         <div class="strip-label">FIXED STRIP: the key you're in &middot; <span class="hint">tap a note</span></div>
 
         <div class="readout">
@@ -513,6 +525,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
         <g id="spinArrow" aria-hidden="true"></g>
         <g id="outer"><title>Click a note to pick the key your song is in</title></g>
         <g class="inner" id="inner"><title>Drag clockwise or counterclockwise to change key</title><g id="hub"></g></g>
+        <g id="hubCoin" aria-hidden="true"></g>
       </svg>
       <div class="strip-label ring-bottom">INNER RING: the key you want &middot; <span class="hint">drag me</span></div>
       </div>
@@ -676,6 +689,11 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   let from = 0;      // C
   let shift = 2;     // up 2 -> D
   let innerRot = -shift * 30;   // the inner wheel's current angle, in degrees
+  // "Keep my key at the start" (off by default): the fixed strip and the outer ring move so the song's key
+  // sits at the left and at the top. The shading then never moves: I first, IV 5 boxes on, V 7, and vi 9.
+  let keyAtStart = false;
+  const start = () => keyAtStart ? from : 0;   // the note at the fixed strip's left end and the outer ring's top
+  let outerRot = 0;                             // the outer ring's current angle, in degrees
 
   /* ---------- strips ---------- */
   const baseRow = $("baseRow"), sliderRow = $("sliderRow");
@@ -686,11 +704,19 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     else d.textContent = note;
     return d;
   }
-  for (let i = 0; i < 12; i++) baseRow.appendChild(cell(NOTES[i]));
+  for (let i = 0; i < 36; i++) baseRow.appendChild(cell(NOTES[i % 12]));   // three rounds, like the slider, so it can glide
   for (let j = 0; j < 36; j++) sliderRow.appendChild(cell(NOTES[j % 12]));
   const baseCells = [...baseRow.children], sliderCells = [...sliderRow.children];
 
   function boxWidth() { return baseCells[0].getBoundingClientRect().width - 1.5; }
+  // The fixed strip shows 12 of its 36 boxes. Normally the first 12 (C to B); with "Keep my key at the
+  // start", the 12 from the song's key, at whichever of its three places is nearest, so it glides the short way.
+  let baseK = 0;
+  function placeBase(k) { baseK = k; baseRow.style.transform = k ? "translateX(" + (-k * boxWidth()) + "px)" : ""; }
+  function baseFor(near) {
+    return [0, 12, 24].map(r => start() + r).filter(k => k <= 24)
+      .reduce((a, b) => Math.abs(b - near) < Math.abs(a - near) ? b : a);
+  }
   // The slider has three rounds of the 12 notes, so each key can sit at three places. sliderK is
   // where it is now, in boxes; snapping picks the place for the key nearest to that, so it never
   // slides a whole round to land on the same notes. Only places 0 to 24 fill the window (beyond 24
@@ -702,7 +728,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     sliderK = -offsetPx / boxWidth();
   }
   function placeFor(near) {                  // the box position for the current key nearest to near
-    return [0, 12, 24].map(r => mod(shift) + r).filter(k => k <= 24)
+    return [0, 12, 24].map(r => mod(shift + start()) + r).filter(k => k <= 24)
       .reduce((a, b) => Math.abs(b - near) < Math.abs(a - near) ? b : a);
   }
   function snapOffset() { return -placeFor(sliderK) * boxWidth(); }
@@ -710,13 +736,20 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   function recentreSoon() {                  // once the glide has finished: the same notes, nothing visibly moves
     clearTimeout(recentreLater);
     recentreLater = setTimeout(() => {
+      const kb = baseFor(keyAtStart ? 12 : 0);   // the fixed strip too: back to its first 12 boxes when the switch is off
+      if (kb !== baseK) {
+        baseRow.classList.add("still");
+        placeBase(kb);
+        void baseRow.offsetWidth;
+        baseRow.classList.remove("still");
+      }
       const k = placeFor(12);
       if (dragging || Math.abs(k - sliderK) < 0.01) return;
       sliderRow.classList.add("dragging");   // no glide
       placeSlider(-k * boxWidth());
       void sliderRow.offsetWidth;            // apply it before the glide comes back on
       sliderRow.classList.remove("dragging");
-    }, 350);
+    }, 500);
   }
 
   /* ---------- wheel ---------- */
@@ -754,10 +787,12 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   const outerPaths = ringPart(outer, 84, 112, false, 12);
   const innerPaths = ringPart(inner, 55, 81, false, 11);
   hub.innerHTML = '<circle r="52" fill="#FFFDF6"/>';
+  // the coin sits over the disk's centre in its own layer, so it stays upright while the disk turns
+  // (as in the Pocket's build picture); the pointer goes through it to the disk
   const hubCoin = document.createElementNS(SVGNS, "g");
   hubCoin.innerHTML = document.querySelector(".coin").innerHTML.replace(/ id="[^"]+"/g, "");
   hubCoin.setAttribute("transform", "scale(1.03)");
-  hub.appendChild(hubCoin);
+  $("hubCoin").appendChild(hubCoin);
   hubCoin.querySelectorAll("polygon")[0].setAttribute("points", polyPoints(46));
   hubCoin.querySelectorAll("polygon")[1].setAttribute("points", polyPoints(43));
 
@@ -789,9 +824,12 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     fromSel.value = from;
     toSel.value = to;
     $("keyType").value = minor ? "minor" : "major";   // the menus always say what the page plays
+    $("keyStart").checked = keyAtStart;
 
     // strips
     sliderRow.classList.toggle("dragging", !animate);
+    baseRow.classList.toggle("still", !animate);
+    placeBase(baseFor(baseK));
     placeSlider(snapOffset());
     recentreSoon();
     // In a minor key the blue (vi) sits on the key's note, as the sheets say, so the green (I) is 3 boxes up
@@ -801,18 +839,20 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const order = minor ? [3, 0, 1, 2] : [0, 1, 2, 3];   // in the order the boxes run, up from the key: vi I IV V in minor
     const six = tones[3], sixTo = mod(six + shift);
     const four = tones[1], five = tones[2];
-    baseCells.forEach((c, i) => { c.classList.toggle("hi", i === four); c.classList.toggle("five", i === five); });   // IV yellow, V red
+    baseCells.forEach((c, i) => { c.classList.toggle("hi", i % 12 === four); c.classList.toggle("five", i % 12 === five); });   // IV yellow, V red
     sliderCells.forEach((c, j) => { c.classList.toggle("hi", j % 12 === mod(four + shift)); c.classList.toggle("five", j % 12 === mod(five + shift)); });
-    baseCells.forEach((c, i) => c.classList.toggle("root", i === rel));           // I: green, as on the add-ons
+    baseCells.forEach((c, i) => c.classList.toggle("root", i % 12 === rel));      // I: green, as on the add-ons
     sliderCells.forEach((c, j) => c.classList.toggle("root", j % 12 === relTo));
-    baseCells.forEach((c, i) => c.classList.toggle("six", i === six));            // vi: blue
+    baseCells.forEach((c, i) => c.classList.toggle("six", i % 12 === six));       // vi: blue
     sliderCells.forEach((c, j) => c.classList.toggle("six", j % 12 === sixTo));
 
     // wheel: outer note i sits at angle i*30; inner note j must sit next to outer note j-shift
     // turn the short way round: pick the equivalent angle nearest the current one
-    let target = -shift * 30;
-    target += 360 * Math.round((innerRot - target) / 360);
-    innerRot = target;
+    // (with "Keep my key at the start", the outer ring turns too, so the song's key is at the top)
+    const nearest = (deg, now) => deg + 360 * Math.round((now - deg) / 360);
+    outerRot = nearest(-start() * 30, outerRot);
+    outer.style.transform = outerRot ? "rotate(" + outerRot + "deg)" : "";
+    innerRot = nearest(-(shift + start()) * 30, innerRot);
     inner.style.transform = "rotate(" + innerRot + "deg)";
     outerPaths.forEach((p, i) => p.setAttribute("fill", tones.includes(i) ? "#FFD84D" : (NOTES[i].includes("#") ? "#E6DCC6" : "#FFFFFF")));
     innerPaths.forEach((p, j) => p.setAttribute("fill", tones.map(t => mod(t + shift)).includes(j) ? "#FFD84D" : (NOTES[j].includes("#") ? "#E6DCC6" : "#FFFFFF")));
@@ -836,7 +876,8 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const mainLabel = "Main chords:", DEG = minor ? ["III", "VI", "VII", "i"] : ["I", "IV", "V", "vi"];
     $("numerals").textContent = minor ? "i, III, VI, and VII are Roman numerals for 1, 3, 6, and 7, counting the letters up from your key's note."
                                       : "I, IV, V, and vi are Roman numerals for 1, 4, 5, and 6, counting the letters up from your key's note.";
-    $("maps").innerHTML = "<span class='note' style='align-self:center'>" + mainLabel + "</span>" + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return "<span><i class='deg " + ["root", "four", "five", "six"][k] + "' aria-hidden='true'>" + DEG[k] + ".</i>" + spell(t, fF) + q + " becomes <b>" + spell(mod(t + shift), tF) + q + "</b></span>"; }).join("");
+    $("maps").classList.toggle("minor", minor);
+    $("maps").innerHTML = "<span class='note' style='align-self:center'>" + mainLabel + "</span>" + order.map(k => { const t = tones[k], q = k === 3 ? "m" : ""; return "<span><i class='deg " + ["root", "four", "five", "six"][k] + "' aria-hidden='true'>" + DEG[k] + ".</i><span class='name'>" + spell(t, fF) + q + "</span> becomes <b>" + spell(mod(t + shift), tF) + q + "</b></span>"; }).join("");
     // major: iii, ii, and V7; minor: the key's own iv, v, and V7 (Dm, Em, and E7 in Am), the chords older
     // minor-key songs lean on. Counted from the key's note; the main chords are shown above.
     const base = minor ? from : rel;
@@ -870,6 +911,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   $("down").addEventListener("click", () => { shift = mod(shift + 1); render(true, true); });
   // changing the key type keeps the same note (C becomes Cm) and moves the marks to suit
   $("keyType").addEventListener("change", () => { minor = $("keyType").value === "minor"; fillMenus(); render(true, true); });
+  $("keyStart").addEventListener("change", () => { keyAtStart = $("keyStart").checked; render(true, false); });
 
   // tap a note on the fixed strip or the outer ring to make it the key you're in. It works like the
   // "Song is in" menu (the key you want stays put and the slider glides to match), and the menus stay
@@ -881,7 +923,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   }
   baseRow.addEventListener("click", (e) => {
     const c = e.target.closest(".cell");
-    if (c) setFrom(baseCells.indexOf(c));
+    if (c) setFrom(baseCells.indexOf(c) % 12);
   });
 
   // drag the slider: moving it left by one box shows the next note up
@@ -933,9 +975,24 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   // minor key. Three soft notes, spread a little like a gentle strum, from the key's note near middle C
   // A new chord quickly fades out the one before, so rapid key changes don't pile up into a muddy,
   // loud cluster: they sound like a quick run of chords, with only the last one ringing on.
+  // the chord's name lights up for a moment as it plays: the first of the main chords is the key's own, on
+  // the left for the song's key ("C becomes D") and in bold for the key you want ("C becomes D")
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function glow(key) {
+    const first = $("maps").children[1];
+    if (!first) return;
+    const name = key === mod(from + shift) ? first.querySelector("b") : first.querySelector(".name");
+    if (!name) return;
+    name.classList.remove("lit");
+    void name.offsetWidth;                       // so a repeat lights it again
+    name.classList.add("lit");
+    clearTimeout(name.offLater);
+    name.offLater = setTimeout(() => name.classList.remove("lit"), reduceMotion ? 1100 : 300);   // then it fades
+  }
   function chord(key) {
     clearTimeout(tickLater);                     // a drag note still waiting would come after the chord
     if (!soundOn) return;
+    glow(key);
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
       if (actx.state === "suspended") actx.resume();
@@ -984,7 +1041,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     if (Math.abs(e.clientX - dragStartX) > 4) touched = true;
     placeSlider(off);
     const box = Math.round(off / w);
-    if (box !== dragBox) { dragBox = box; tick(mod(-box)); }
+    if (box !== dragBox) { dragBox = box; tick(mod(-box - start())); }
   });
   function endDrag(e) {
     if (!dragging) return;
@@ -993,7 +1050,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     const off = Math.max(-24 * w, Math.min(0, dragStartOffset + (e.clientX - dragStartX)));   // as shown, past the ends too
     sliderRow.classList.remove("dragging");
     const dx = Math.abs(e.clientX - dragStartX), dy = Math.abs(e.clientY - dragStartY);
-    if (dx > 4) { shift = mod(Math.round(-off / w)); render(true, true); return; }
+    if (dx > 4) { shift = mod(Math.round(-off / w) - start()); render(true, true); return; }
     render(true, false);                       // no move along the strip: the key stays as it was, whatever the
                                                // box size, since only a drag sets it
     // a tap answers with the chord of the key you want, like the wheel and the fixed strip. A finger that
@@ -1044,13 +1101,13 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
     spin.turned += Math.abs(d);
     inner.style.transform = "rotate(" + spin.rot + "deg)";
     const note = Math.round(spin.rot / 30);
-    if (note !== spin.note) { spin.note = note; tick(mod(-note)); }
+    if (note !== spin.note) { spin.note = note; tick(mod(-note - start())); }
   });
   function endSpin() {
     if (!spin) return;
     innerRot = spin.rot;
     const turned = spin.turned > 3;            // degrees: less than that is a tap, not a turn
-    if (turned) shift = mod(Math.round(-spin.rot / 30));   // only a turn sets the key: a tap keeps it as it was
+    if (turned) shift = mod(Math.round(-spin.rot / 30) - start());   // only a turn sets the key: a tap keeps it as it was
     spin = null;
     wheel.classList.remove("spinning");
     if (turned) render(true, true);
@@ -1062,7 +1119,7 @@ footer .ver { font-family: var(--mono); font-size: 13px; color: var(--muted); }
   wheel.addEventListener("pointerdown", (e) => { ringDown = onRing(pointerAngle(e)); });
   wheel.addEventListener("click", (e) => {
     const p = pointerAngle(e);
-    if (ringDown && onRing(p)) setFrom(mod(Math.round(p.deg / 30)));
+    if (ringDown && onRing(p)) setFrom(mod(Math.round((p.deg - outerRot) / 30)));   // the ring may be turned
     ringDown = false;
   });
   wheel.addEventListener("pointercancel", () => {   // likewise for the wheel: back to where it was
